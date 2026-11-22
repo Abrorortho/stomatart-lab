@@ -161,30 +161,42 @@ nav button.on i{background:var(--accs)}
 .menu .li span:first-child{display:flex;align-items:center;gap:12px}
 .menu .mi{width:32px;height:32px;border-radius:8px;display:grid;place-items:center}
 .menu .mi svg{width:18px;height:18px}
-/* ===== Широкий экран (компьютер): меню слева, карточки в колонки ===== */
+/* ===== Планшет и компьютер =====
+   ≥700px  (iPad вертикально): нижнее меню остаётся, карточки в 2 колонки, формы — окном по центру
+   ≥1000px (iPad горизонтально, компьютер): меню слева
+   env(safe-area-inset-*) — вырезы и полоска «Домой» на iPad/iPhone в режиме «с экрана Домой» */
 @media (hover:hover){.tap{cursor:pointer}.card.tap:hover{border-color:var(--acc)}.chip,.btn,nav button,.plus,.vt button,.link,.cal-g .d,.cal-h button,.mon button,.seg button{cursor:pointer}nav button:hover{color:var(--tx)}}
+@media (min-width:700px){
+  header{padding-left:calc(20px + env(safe-area-inset-left));padding-right:calc(20px + env(safe-area-inset-right))}
+  main{padding:16px calc(24px + env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) calc(24px + env(safe-area-inset-left))}
+  .stats{grid-template-columns:repeat(4,1fr);gap:10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;align-items:start}
+  .grid>.card{margin:0}
+  .tools{max-width:640px}
+  .board{margin:0 -24px;padding:0 24px 8px}
+  .board>.col{flex:0 0 calc(50% - 5px);max-width:none}
+  .cal-g .d{min-height:56px;padding-top:8px}
+  .sh{left:50%;top:50%;bottom:auto;right:auto;width:min(640px,92vw);max-height:88vh;transform:translate(-50%,-50%);border-radius:16px;animation:pop .2s ease-out;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  .sh-body{flex:1 1 auto;min-height:0;padding-bottom:20px}
+  #main>.card.list.menu,#main>.f,#main>.btn,#main>.hint{max-width:760px}
+  nav button{font-size:12px}
+}
 @media (min-width:1000px){
-  header{height:60px;padding:0 24px 0 18px}
-  nav{top:60px;bottom:0;right:auto;width:220px;flex-direction:column;gap:2px;border-top:0;border-right:1px solid var(--line);padding:14px 10px}
+  header{height:calc(60px + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);padding-bottom:0;padding-left:calc(18px + env(safe-area-inset-left))}
+  nav{top:calc(60px + env(safe-area-inset-top));bottom:0;right:auto;width:calc(220px + env(safe-area-inset-left));flex-direction:column;gap:2px;border-top:0;border-right:1px solid var(--line);padding:14px 10px calc(14px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left))}
   nav button{flex:none;flex-direction:row;justify-content:flex-start;gap:12px;font-size:15px;padding:6px 10px;border-radius:10px}
   nav button i{width:36px;height:32px;border-radius:9px}
   nav button.on{background:var(--accs)}
   nav button.on i{background:none}
-  main{margin-left:220px;padding:20px 28px 40px}
-  .stats{grid-template-columns:repeat(4,1fr);gap:12px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;align-items:start}
-  .grid>.card{margin:0}
-  .tools{max-width:640px}
+  main{margin-left:calc(220px + env(safe-area-inset-left));padding:20px calc(28px + env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) 28px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
   .board{margin:0;padding:0 0 8px;overflow-x:visible}
-  .board>.col{flex:1 1 0;max-width:none;min-width:220px}
+  .board>.col{flex:1 1 0;min-width:190px}
   .bhint{display:none}
   .calwrap{display:grid;grid-template-columns:minmax(420px,1.3fr) 1fr;gap:24px;align-items:start}
   .calwrap .sec:first-child{margin-top:0}
   .cal-g .d{min-height:64px;padding-top:10px}
-  .sh{left:50%;top:50%;bottom:auto;right:auto;width:min(640px,92vw);max-height:88vh;transform:translate(-50%,-50%);border-radius:16px;animation:pop .2s ease-out;box-shadow:0 20px 60px rgba(0,0,0,.25)}
-  .sh-body{flex:1 1 auto;min-height:0;padding-bottom:20px}
-  .toast{bottom:30px;left:calc(50% + 110px)}
-  #main>.card.list.menu,#main>.f,#main>.btn,#main>.hint{max-width:760px}
+  .toast{bottom:calc(30px + env(safe-area-inset-bottom));left:calc(50% + 110px)}
 }
 @media (min-width:1600px){main{padding:24px 40px 40px}}
 @keyframes pop{from{opacity:0;transform:translate(-50%,-47%)}}
