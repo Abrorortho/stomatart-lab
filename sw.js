@@ -1,7 +1,7 @@
 // Service worker: программа открывается без интернета.
 // Страница программы берётся из сети (чтобы сразу приходили обновления), а без интернета — из кэша.
 // Иконки и прочее — из кэша. Запросы к Яндекс Диску не трогаются.
-const CACHE = 'stomatart-v2';
+const CACHE = 'stomatart-v3';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/favicon.png'];
 
 self.addEventListener('install', e => {
