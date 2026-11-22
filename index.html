@@ -335,7 +335,9 @@ async function ydReq(method,url,{auth=true,body}={}){
   const headers={};if(auth)headers.Authorization='OAuth '+ydToken;
   const host=(()=>{try{return new URL(url).hostname}catch(e){return '?'}})();
   if(DESK){const r=await window.desktop.http({method,url,headers,body});if(!r.status)throw new Error(`нет связи (${method} ${host}): ${r.text}`);return r}
-  let r;try{r=await fetch(url,{method,headers,body,cache:'no-store'})}catch(e){throw new Error(`нет связи (${method} ${host}): ${e.message}`)}
+  // Ссылки на скачивание/загрузку (без auth) одноразовые — cache не задаём: Safari при cache:'no-store'
+  // добавляет заголовки Cache-Control/Pragma, из-за них запрос к downloader.disk.yandex.ru не проходит
+  let r;try{r=await fetch(url,auth?{method,headers,body,cache:'no-store'}:{method,body})}catch(e){throw new Error(`нет связи (${method} ${host}): ${e.message}`)}
   return {status:r.status,text:await r.text()};
 }
 const ydJ=r=>{try{return JSON.parse(r.text)}catch(e){return {}}};
