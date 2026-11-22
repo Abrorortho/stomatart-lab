@@ -265,7 +265,7 @@ const YD_API=(()=>{try{return localStorage.getItem('yd_base')}catch(e){return nu
 const YD_FILE='app:/data.json',YD_BAK='app:/backups',YD_KEEP=100,NEST=['payments','batches'];
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
-let ydToken=IN_CLAUDE?null:lsGet(KEY+'_ydtoken'),ydBusy=false,ydAgain=false,ydMd5=null,ydRemoteCanon=null,ydTimer=null,ydState=ydToken?'wait':'off',ydLast=lsGet(KEY+'_ydlast'),ydBakN=0;
+let ydToken=IN_CLAUDE?null:lsGet(KEY+'_ydtoken'),ydBusy=false,ydAgain=false,ydMd5=null,ydRemoteCanon=null,ydTimer=null,ydState=ydToken?'wait':'off',ydLast=lsGet(KEY+'_ydlast'),ydBakN=0,ydErrMsg='';
 if(ydToken)cloudState='wait';
 
 // Старые оплаты/партии без id получают одинаковый id на всех устройствах (из содержимого)
@@ -333,8 +333,10 @@ function applyMerged(m){
 const q=encodeURIComponent;
 async function ydReq(method,url,{auth=true,body}={}){
   const headers={};if(auth)headers.Authorization='OAuth '+ydToken;
-  if(DESK){const r=await window.desktop.http({method,url,headers,body});if(!r.status)throw new Error('нет связи');return r}
-  const r=await fetch(url,{method,headers,body,cache:'no-store'});return {status:r.status,text:await r.text()};
+  const host=(()=>{try{return new URL(url).hostname}catch(e){return '?'}})();
+  if(DESK){const r=await window.desktop.http({method,url,headers,body});if(!r.status)throw new Error(`нет связи (${method} ${host}): ${r.text}`);return r}
+  let r;try{r=await fetch(url,{method,headers,body,cache:'no-store'})}catch(e){throw new Error(`нет связи (${method} ${host}): ${e.message}`)}
+  return {status:r.status,text:await r.text()};
 }
 const ydJ=r=>{try{return JSON.parse(r.text)}catch(e){return {}}};
 function ydOk(r,ok=[200,201,202]){if(r.status===401||r.status===403){const e=new Error('auth');e.auth=true;throw e}if(!ok.includes(r.status))throw new Error('Диск ответил '+r.status);return r}
@@ -379,8 +381,22 @@ async function ydSync(){
   if(layers.length){ydSoon(3000);return} // пока открыта форма — не трогаем данные
   ydBusy=true;ydSet('sync');
   try{do{ydAgain=false;await ydSyncOnce()}while(ydAgain);ydLast=new Date().toISOString();lsSet(KEY+'_ydlast',ydLast);ydSet('ok')}
-  catch(e){console.warn('sync',e);ydSet(e.auth?'auth':'err')}
+  catch(e){console.warn('sync',e);ydErrMsg=String(e&&e.message||e);ydSet(e.auth?'auth':'err')}
   ydBusy=false;
+}
+// Пошаговая проверка связи — чтобы по скриншоту было видно, какой шаг не проходит
+async function ydDiagnose(){
+  const steps=[],T=Date.now(),probe='app:/check.txt';
+  const run=async(name,fn)=>{try{const r=await fn();steps.push([true,name,r||'']);return true}catch(e){steps.push([false,name,String(e&&e.message||e)]);return false}};
+  await run('Интернет и API Диска',async()=>{const r=await ydReq('GET',`${YD_API}/resources?path=${q('app:/')}&limit=1&fields=path`);if(r.status===401||r.status===403)throw new Error('код не подходит ('+r.status+')');if(r.status!==200&&r.status!==404)throw new Error('ответ '+r.status);return 'ответ '+r.status});
+  let up=null,dl=null;
+  await run('Ссылка для записи',async()=>{const r=ydOk(await ydReq('GET',`${YD_API}/resources/upload?path=${q(probe)}&overwrite=true`));up=ydJ(r).href;return new URL(up).hostname});
+  if(up)await run('Запись файла',async()=>{const r=await ydReq('PUT',up,{auth:false,body:'check '+T});if(![200,201,202].includes(r.status))throw new Error('ответ '+r.status);return 'ответ '+r.status});
+  await run('Ссылка для чтения',async()=>{const r=ydOk(await ydReq('GET',`${YD_API}/resources/download?path=${q(probe)}`));dl=ydJ(r).href;return new URL(dl).hostname});
+  if(dl)await run('Чтение файла',async()=>{const r=await ydReq('GET',dl,{auth:false});if(r.status!==200)throw new Error('ответ '+r.status);if(r.text!=='check '+T)throw new Error('прочитано не то');return 'ответ 200'});
+  await ydReq('DELETE',`${YD_API}/resources?path=${q(probe)}&permanently=true`).catch(()=>{});
+  openSheet('Проверка связи',`<div class="card list">${steps.map(([ok,n,d])=>`<div class="li"><span>${ok?'✅':'❌'} ${esc(n)}</span><span class="sm ${ok?'mut':'red'}" style="text-align:right;max-width:60%;word-break:break-word">${esc(d)}</span></div>`).join('')}</div>
+  <div class="hint">${esc(navigator.userAgent)}<br>${esc(location.href)} · ${new Date().toLocaleString('ru-RU')}</div><div class="hint">Сделайте скриншот этого экрана и пришлите его.</div>`);
 }
 function ydSoon(ms){clearTimeout(ydTimer);ydTimer=setTimeout(ydSync,ms)}
 const ydAuthUrl=()=>`https://oauth.yandex.ru/authorize?response_type=token&client_id=${q(YD_CLIENT_ID)}&force_confirm=yes`;
@@ -390,7 +406,7 @@ async function ydConnect(code){
   const prev=ydToken;ydToken=tok;
   try{const r=await ydReq('GET',`${YD_API}/resources?path=${q('app:/')}&limit=1`);if(r.status===401||r.status===403){ydToken=prev;toast('Код не подходит');return}
     if(r.status!==200&&r.status!==404){ydToken=prev;toast('Не удалось связаться с Диском');return}}
-  catch(e){ydToken=prev;toast('Нет связи с Яндекс Диском');return}
+  catch(e){toast('Нет связи с Яндекс Диском');await ydDiagnose();ydToken=prev;return}
   lsSet(KEY+'_ydtoken',tok);ydMd5=null;toast('Подключено');ydSet('wait');render();ydSync();
 }
 async function queueSync(){
@@ -811,8 +827,9 @@ function ydBlock(){
   <div class="hint">Код даёт владелец Яндекс Диска. После подключения заказы, элайнеры и оплаты будут одинаковыми на компьютере, iPhone и iPad.${YD_CLIENT_ID?` Владелец Диска может <a href="${ydAuthUrl()}" target="_blank" rel="noopener" style="color:var(--acc)">получить код здесь</a>.`:''}</div>`;
   const st={ok:'Синхронизировано',sync:'Синхронизация…',wait:'Подключение…',err:'Нет связи с Диском. Всё сохранено на этом устройстве и отправится, когда появится интернет.',auth:'Код подключения больше не действует. Попросите новый код у владельца Диска и подключитесь заново.'}[ydState]||'';
   const when=ydLast?(()=>{const d=new Date(ydLast);return fmt(iso(d))+', '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})})():'';
-  return `${head}<div class="card"><b class="${ydState==='ok'?'grn':ydState==='auth'||ydState==='err'?'red':''}">${st}</b><div class="sub">${when?'Последний обмен: '+when:'Обмена ещё не было'}</div></div>
+  return `${head}<div class="card"><b class="${ydState==='ok'?'grn':ydState==='auth'||ydState==='err'?'red':''}">${st}</b>${ydState==='err'&&ydErrMsg?`<div class="sub red">Подробности: ${esc(ydErrMsg)}</div>`:''}<div class="sub">${when?'Последний обмен: '+when:'Обмена ещё не было'}</div></div>
   <button class="btn" data-ydnow>${ic('cloud','x')}Синхронизировать сейчас</button>
+  <button class="btn" data-ydcheck>${ic('alert','x')}Проверить связь</button>
   ${ydState==='auth'?`<div class="f"><label><span>Новый код</span><input id="ydCode" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></label></div><button class="btn pri" data-ydon>Подключить заново</button>`:''}
   <button class="btn danger" data-ydoff>Отключить синхронизацию</button>`;
 }
@@ -901,6 +918,7 @@ $('#main').addEventListener('click',e=>{
   else if(t.closest('[data-folder]'))window.desktop.openFolder();
   else if(t.closest('[data-ydon]'))ydConnect($('#ydCode').value);
   else if(t.closest('[data-ydnow]')){ydMd5=null;ydSync()}
+  else if(t.closest('[data-ydcheck]')){toast('Проверяю…');ydDiagnose()}
   else if(t.closest('[data-ydoff]'))ask('Отключить синхронизацию на этом устройстве? Данные здесь останутся, но перестанут обмениваться с другими устройствами.',()=>{ydToken=null;lsSet(KEY+'_ydtoken',null);ydSet('off');render()},'Отключить');
   else if(t.closest('[data-wipe]'))ask(ydToken?'Удалить ВСЕ данные на ВСЕХ подключённых устройствах (компьютер, iPhone, iPad)? Сначала сделайте резервную копию.':DESK?'Удалить ВСЕ данные с этого компьютера? Сначала сделайте резервную копию.':'Удалить ВСЕ данные с этого телефона? Сначала сделайте резервную копию.',()=>{db=defaults();save();render();toast('Данные удалены')},'Удалить всё');
 });
