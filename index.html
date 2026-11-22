@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Stomatart Lab">
+<meta name="theme-color" content="#ffffff">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/favicon.png"><link rel="manifest" href="manifest.webmanifest">
+<title>Stomatart Lab</title>
+<style>
+:root{--bg:#f4f6f5;--card:#fff;--tx:#202124;--mut:#70757a;--line:#e3e8e5;--acc:#47b269;--accd:#3a9a59;--accs:#e8f6ec;--acc2:#6c63c9;--acc2s:#ebe9fa;--red:#e5484d;--reds:#fdecec;--grn:#2f9e57;--org:#d9822b;--orgs:#fdf0dd;--blue:#3b82c4;--blues:#e6f0fa}
+@media (prefers-color-scheme:dark){:root{--bg:#111413;--card:#1b1f1d;--tx:#eceff1;--mut:#9aa0a6;--line:#2a302d;--acc:#5cc47e;--accd:#4fb370;--accs:#1d3326;--acc2:#a59df0;--acc2s:#2a2747;--red:#ff6b6f;--reds:#3a1e20;--grn:#5cc47e;--org:#f0a35c;--orgs:#3a2b18;--blue:#7fb6ea;--blues:#1b2b3c}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Google Sans",Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line);padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--accs);color:var(--acc);display:grid;place-items:center;flex:none}
+.logo svg{width:20px;height:20px}
+.brand small{display:block;font-size:12px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header h1{font-size:20px;margin:0;font-weight:600;letter-spacing:-.01em}
+.plus{height:36px;border-radius:8px;border:0;background:var(--acc);color:#fff;font-size:15px;font-weight:500;padding:0 14px 0 10px;display:flex;align-items:center;gap:4px}
+.plus svg{width:20px;height:20px}
+main{padding:12px 16px calc(92px + env(safe-area-inset-bottom))}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:6;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;background:none;color:var(--mut);font-size:11px;padding:6px 0 5px;display:flex;flex-direction:column;align-items:center;gap:3px;font-family:inherit}
+nav button i{width:46px;height:28px;border-radius:14px;display:grid;place-items:center;transition:background .2s}
+nav button svg{width:22px;height:22px}
+nav button.on{color:var(--acc);font-weight:600}
+nav button.on i{background:var(--accs)}
+.ic{width:16px;height:16px;vertical-align:-3px;flex:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:0 0 10px}
+.card.tap:active,.tap:active{opacity:.65}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.who{display:flex;align-items:center;gap:10px;min-width:0}
+.who b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:600;flex:none}
+.av.sm{width:24px;height:24px;font-size:10px}
+.sub{color:var(--mut);font-size:13px;margin:2px 0 4px}
+.sm{font-size:13px}
+.red{color:var(--red)}.grn{color:var(--grn)}.org{color:var(--org)}.mut{color:var(--mut)}
+.badge{font-size:12px;padding:3px 9px;border-radius:6px;white-space:nowrap;font-weight:500}
+.st-new{background:var(--orgs);color:var(--org)}.st-work{background:var(--acc2s);color:var(--acc2)}.st-ready{background:var(--accs);color:var(--grn)}.st-done{background:var(--bg);color:var(--mut);border:1px solid var(--line)}
+.pill{border-radius:8px;padding:7px 10px;margin:8px 0;font-size:14px;font-weight:500;background:var(--acc2s);color:var(--tx)}
+.pill.aln{background:var(--accs)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--mut);align-items:center}
+.meta span{display:inline-flex;align-items:center;gap:4px}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--line);border-radius:8px;padding:6px 12px;background:var(--card);color:var(--tx);font-size:14px;white-space:nowrap;font-family:inherit}
+.chip.on{background:var(--accs);border-color:var(--acc);color:var(--acc);font-weight:600}
+.tools{display:flex;gap:8px;margin-bottom:8px}
+.search{flex:1;border:1px solid var(--line);border-radius:8px;padding:9px 12px 9px 36px;background:var(--card) no-repeat 11px center/16px url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2370757a' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");color:var(--tx);font-size:16px;width:100%;font-family:inherit}
+.vt{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card);flex:none}
+.vt button{border:0;background:none;width:40px;color:var(--mut);display:grid;place-items:center}
+.vt button.on{background:var(--accs);color:var(--acc)}
+.vt svg{width:18px;height:18px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;gap:10px;align-items:center}
+.stat .si{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none}
+.stat .si svg{width:18px;height:18px}
+.stat b{display:block;font-size:19px;font-weight:600;line-height:1.15}
+.stat span{font-size:12px;color:var(--mut)}
+.t-red{background:var(--reds);color:var(--red)}.t-org{background:var(--orgs);color:var(--org)}.t-vio{background:var(--acc2s);color:var(--acc2)}.t-grn{background:var(--accs);color:var(--acc)}.t-blue{background:var(--blues);color:var(--blue)}
+.empty{text-align:center;color:var(--mut);padding:36px 10px}
+.empty .eic{width:56px;height:56px;border-radius:16px;background:var(--accs);color:var(--acc);display:grid;place-items:center;margin:0 auto 12px}
+.empty .eic svg{width:28px;height:28px}
+.sec{font-size:13px;font-weight:600;color:var(--mut);margin:16px 2px 8px}
+.bar{height:8px;border-radius:4px;background:var(--bg);border:1px solid var(--line);overflow:hidden;margin:8px 0;position:relative}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--acc)}
+.bar u{position:absolute;top:0;bottom:0;width:3px;background:var(--org)}
+.list .li{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);gap:8px}
+.list .li:last-child{border-bottom:0}
+/* доска */
+.board{display:flex;gap:10px;overflow-x:auto;margin:0 -16px;padding:0 16px 8px;scroll-snap-type:x mandatory}
+.board>.col{flex:0 0 82%;max-width:320px;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px}
+.col-h{display:flex;justify-content:space-between;align-items:center;border-radius:8px;padding:8px 10px;font-weight:600;font-size:14px;margin-bottom:8px}
+.col-h em{font-style:normal;background:var(--card);border-radius:6px;padding:1px 8px;font-size:12px}
+.col .card{margin-bottom:8px;padding:10px}
+.col .card:last-child{margin-bottom:0}
+/* шторки */
+.layer{position:fixed;inset:0;z-index:20}
+.layer .bg{position:absolute;inset:0;background:rgba(15,25,20,.4);animation:fi .2s}
+.sh{position:absolute;left:0;right:0;bottom:0;top:calc(env(safe-area-inset-top) + 24px);background:var(--bg);border-radius:16px 16px 0 0;display:flex;flex-direction:column;animation:su .25s ease-out}
+@keyframes su{from{transform:translateY(100%)}}@keyframes fi{from{opacity:0}}
+.sh-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--card);border-radius:16px 16px 0 0}
+.sh-head b{font-size:16px;text-align:center;flex:1;font-weight:600}
+.link{border:0;background:none;color:var(--acc);font-size:16px;padding:4px;min-width:70px;text-align:left;font-family:inherit}
+.link.b{font-weight:600;text-align:right}
+.sh-body{overflow-y:auto;padding:14px 16px calc(30px + env(safe-area-inset-bottom));flex:1;-webkit-overflow-scrolling:touch}
+.f{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0 14px;margin-bottom:12px}
+.f label{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:15px}
+.f label:last-child{border-bottom:0}
+.f label>span{flex:none;color:var(--mut)}
+.f input,.f select,.f textarea{border:0;background:none;color:var(--tx);font:inherit;font-size:16px;text-align:right;flex:1;min-width:0;width:100%;outline:none}
+.f select{direction:rtl}
+.f textarea{text-align:left;min-height:60px;resize:vertical}
+.f label.col{flex-direction:column;align-items:stretch}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px;margin:0 0 12px;gap:3px}
+.seg button{flex:1;border:0;background:none;color:var(--mut);padding:8px 2px;border-radius:7px;font-size:13px;font-family:inherit}
+.seg button.on{font-weight:600}
+.seg button.on[data-v=new]{background:var(--orgs);color:var(--org)}.seg button.on[data-v=work]{background:var(--acc2s);color:var(--acc2)}.seg button.on[data-v=ready],.seg button.on[data-v=done]{background:var(--accs);color:var(--acc)}
+.seg button.on:not([data-v=new]):not([data-v=work]):not([data-v=ready]):not([data-v=done]){background:var(--accs);color:var(--acc)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:1px solid var(--line);border-radius:8px;padding:12px;font-size:15px;background:var(--card);color:var(--acc);margin:0 0 10px;font-weight:500;font-family:inherit}
+.btn svg{width:18px;height:18px}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.danger{color:var(--red)}
+.hint{font-size:13px;color:var(--mut);margin:-4px 2px 12px}
+.money{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center;margin:4px 0 8px}
+.money div{border-radius:8px;padding:8px 2px}
+.money b{display:block;font-size:16px}
+.money span{font-size:12px;color:var(--mut)}
+/* календарь */
+.cal{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
+.cal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.cal-h button{border:1px solid var(--line);background:var(--card);color:var(--tx);border-radius:8px;width:34px;height:32px;font-size:18px}
+.cal-g{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.cal-g .wd{font-size:12px;color:var(--mut);padding:4px 0}
+.cal-g .d{border:0;background:none;color:var(--tx);border-radius:8px;padding:6px 0 4px;font-size:15px;min-height:46px;display:flex;flex-direction:column;align-items:center;font-family:inherit}
+.cal-g .d.o{color:var(--mut);opacity:.4}
+.cal-g .d.t{color:var(--acc);font-weight:700;background:var(--accs)}
+.cal-g .d.s{background:var(--acc);color:#fff}
+.dots{display:flex;gap:3px;margin-top:3px;height:6px}
+.dots i{width:6px;height:6px;border-radius:50%;background:var(--blue)}
+.dots i.a{background:var(--acc2)}.dots i.r{background:var(--red)}
+.d.s .dots i{background:#fff}
+.lg{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+/* финансы */
+.ftable{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}
+.ftable .fr{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line)}
+.ftable .fr:last-child{border-bottom:0}
+.ftable .fr .si{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex:none}
+.ftable .fr .si svg{width:16px;height:16px}
+.ftable .fr span{flex:1}
+.ftable .fr b{font-size:16px}
+.mon{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mon b{font-size:16px;text-transform:capitalize}
+.mon button{border:1px solid var(--line);background:var(--card);color:var(--tx);border-radius:8px;width:36px;height:34px;font-size:18px}
+.chart{display:flex;align-items:flex-end;gap:8px;height:130px;padding:10px 4px 0}
+.chart div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px;font-size:11px;color:var(--mut)}
+.chart i{width:100%;max-width:34px;background:var(--acc);border-radius:6px 6px 2px 2px;min-height:3px}
+.chart div.cur i{background:var(--accd)}
+.chart div.cur{color:var(--tx);font-weight:600}
+.dcard .dm{display:flex;gap:8px;margin-top:10px}
+.dcard .dm div{flex:1;border-radius:8px;padding:7px 10px;font-size:13px;display:flex;align-items:center;gap:6px}
+.dcard .dm b{font-size:15px}
+.dlg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(300px,86vw);background:var(--card);border-radius:14px;text-align:center;overflow:hidden;animation:fi .15s}
+.dlg p{margin:0;padding:18px 16px}
+.dlg .bt{display:flex;border-top:1px solid var(--line)}
+.dlg .bt button{flex:1;border:0;background:none;padding:12px;font-size:16px;color:var(--acc);font-family:inherit}
+.dlg .bt button+button{border-left:1px solid var(--line);font-weight:600}
+.toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#202124;color:#fff;padding:9px 16px;border-radius:8px;font-size:14px;z-index:50;animation:fi .2s;display:flex;gap:6px;align-items:center}
+.warn{background:var(--orgs);color:var(--org);border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:10px}
+.tel{width:30px;height:30px;border-radius:8px;background:var(--accs);color:var(--acc);display:grid;place-items:center;flex:none}.tel svg{width:16px;height:16px}
+.cbtns{display:flex;gap:6px;margin:-4px 0 12px}
+.cbtns a{flex:1;display:flex;align-items:center;justify-content:center;gap:5px;border-radius:8px;padding:9px 4px;font-size:14px;font-weight:500;text-decoration:none;background:var(--accs);color:var(--acc);border:1px solid transparent}
+.cbtns a:nth-child(2){background:#e7f8ee;color:#1f9d55}.cbtns a:nth-child(3){background:var(--blues);color:var(--blue)}
+.menu .li span:first-child{display:flex;align-items:center;gap:12px}
+.menu .mi{width:32px;height:32px;border-radius:8px;display:grid;place-items:center}
+.menu .mi svg{width:18px;height:18px}
+/* ===== Широкий экран (компьютер): меню слева, карточки в колонки ===== */
+@media (hover:hover){.tap{cursor:pointer}.card.tap:hover{border-color:var(--acc)}.chip,.btn,nav button,.plus,.vt button,.link,.cal-g .d,.cal-h button,.mon button,.seg button{cursor:pointer}nav button:hover{color:var(--tx)}}
+@media (min-width:1000px){
+  header{height:60px;padding:0 24px 0 18px}
+  nav{top:60px;bottom:0;right:auto;width:220px;flex-direction:column;gap:2px;border-top:0;border-right:1px solid var(--line);padding:14px 10px}
+  nav button{flex:none;flex-direction:row;justify-content:flex-start;gap:12px;font-size:15px;padding:6px 10px;border-radius:10px}
+  nav button i{width:36px;height:32px;border-radius:9px}
+  nav button.on{background:var(--accs)}
+  nav button.on i{background:none}
+  main{margin-left:220px;padding:20px 28px 40px}
+  .stats{grid-template-columns:repeat(4,1fr);gap:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;align-items:start}
+  .grid>.card{margin:0}
+  .tools{max-width:640px}
+  .board{margin:0;padding:0 0 8px;overflow-x:visible}
+  .board>.col{flex:1 1 0;max-width:none;min-width:220px}
+  .bhint{display:none}
+  .calwrap{display:grid;grid-template-columns:minmax(420px,1.3fr) 1fr;gap:24px;align-items:start}
+  .calwrap .sec:first-child{margin-top:0}
+  .cal-g .d{min-height:64px;padding-top:10px}
+  .sh{left:50%;top:50%;bottom:auto;right:auto;width:min(640px,92vw);max-height:88vh;transform:translate(-50%,-50%);border-radius:16px;animation:pop .2s ease-out;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  .sh-body{flex:1 1 auto;min-height:0;padding-bottom:20px}
+  .toast{bottom:30px;left:calc(50% + 110px)}
+  #main>.card.list.menu,#main>.f,#main>.btn,#main>.hint{max-width:760px}
+}
+@media (min-width:1600px){main{padding:24px 40px 40px}}
+@keyframes pop{from{opacity:0;transform:translate(-50%,-47%)}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo" id="logo"></div><div><h1 id="ttl">Заказы</h1><small id="lab"></small></div></div><button class="plus" id="addBtn"></button></header>
+<main id="main"></main>
+<nav id="nav"></nav>
+<script>
+"use strict";
+/* ===== Данные ===== */
+const KEY='dentlab_db_v1';
+const DESK=typeof window.desktop==='object'&&!!window.desktop; // программа для компьютера (Electron)
+const STATUS={new:'Новый',work:'В работе',ready:'Готов',done:'Сдан'};
+const defaults=()=>({
+  labName:'Stomatart Lab',lead:7,
+  doctors:[],patients:[],orders:[],aligners:[],
+  services:[
+    {id:'s1',type:'app',name:'Ортодонтическая пластинка',price:0},
+    {id:'s2',type:'app',name:'Ретенционная каппа',price:0},
+    {id:'s3',type:'app',name:'Сплинт',price:0},
+    {id:'s4',type:'app',name:'Хирургический шаблон',price:0},
+    {id:'s5',type:'aln',name:'Элайнеры — пакет до 20 кап',price:0,count:20},
+    {id:'s6',type:'aln',name:'Элайнеры — пакет до 30 кап',price:0,count:30}
+  ]});
+let db, storageOK=true;
+function load(){
+  if(DESK){let s=null;try{s=window.desktop.load()}catch(e){}
+    if(s){try{db=JSON.parse(s)}catch(e){s=null}}
+    if(!s){try{const c=localStorage.getItem(KEY);db=c?JSON.parse(c):defaults()}catch(e){db=defaults()}}}
+  else{try{const s=localStorage.getItem(KEY);db=s?JSON.parse(s):defaults()}catch(e){storageOK=false;db=defaults()}}
+  const d=defaults();for(const k in d)if(db[k]===undefined)db[k]=d[k];}
+load();
+
+/* ===== Утилиты ===== */
+const $=s=>document.querySelector(s);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>{const n=parseFloat(String(v).replace(',','.'));return isFinite(n)?n:0};
+const money=n=>'$'+(Math.round(num(n)*100)/100).toLocaleString('ru-RU');
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const parse=s=>{const[y,m,d]=String(s).split('-').map(Number);return new Date(y,m-1,d)};
+const today=()=>iso(new Date());
+const addDays=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d)};
+const diff=(a,b)=>Math.round((parse(a)-parse(b))/864e5);
+function fmt(s){if(!s)return '—';const d=parse(s);const o={day:'numeric',month:'short'};if(d.getFullYear()!==new Date().getFullYear())o.year='numeric';return d.toLocaleDateString('ru-RU',o)}
+function rel(s){const n=diff(s,today());if(n===0)return 'сегодня';if(n===1)return 'завтра';if(n===-1)return 'вчера';return n>0?`через ${n} дн.`:`${-n} дн. назад`}
+const paid=x=>(x.payments||[]).reduce((a,p)=>a+num(p.amount),0);
+const debt=x=>Math.max(0,num(x.price)-paid(x));
+const P=id=>db.patients.find(p=>p.id===id);
+const D=id=>db.doctors.find(d=>d.id===id);
+const S=id=>db.services.find(s=>s.id===id);
+const pname=id=>{const p=P(id);return p?`${p.last} ${p.first||''}`.trim():'—'};
+const dname=id=>{const d=D(id);return d?d.name:'Без врача'};
+const byName=(a,b)=>a.localeCompare(b,'ru');
+function toast(t){const e=document.createElement('div');e.className='toast';e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),1800)}
+
+function saveLocal(){if(DESK){let ok=false;try{ok=window.desktop.save(JSON.stringify(db))}catch(e){}if(!ok)toast('Не удалось записать файл данных')}
+  try{localStorage.setItem(KEY,JSON.stringify(db));localStorage.setItem(KEY+'_saved',new Date().toISOString())}catch(e){storageOK=false}}
+function save(){stamp();saveLocal();if(cloud&&cloudReady)queueSync();if(ydToken)ydSoon(1500)}
+
+/* ===== Облако (когда приложение открыто по ссылке Claude) ===== */
+const IN_CLAUDE=typeof window.claude!=='undefined'&&!!window.claude&&typeof window.claude.use==='function';
+const COLLS=['orders','aligners','patients','doctors','services'];
+let cloud=null,cloudReady=false,cloudState=IN_CLAUDE?'wait':'local',syncing=false,syncAgain=false;
+const synced={};COLLS.forEach(c=>synced[c]={});
+function setCloud(s){cloudState=s;const el=document.getElementById('lab');if(el)el.textContent=db.labName+({ok:' · ☁ синхронизировано',wait:' · ☁ подключение…',sync:' · ☁ синхронизация…',err:' · ⚠ нет связи',auth:' · ⚠ нужен новый код',local:''}[s]||'')}
+
+/* ===== Синхронизация через Яндекс Диск =====
+   Общий файл лежит в папке программы на Диске владельца: «Приложения/Stomatart Lab/data.json».
+   Файлы не перезаписываются целиком: у каждой записи есть updatedAt, при встрече двух версий
+   записи побеждает более поздняя правка; удалённые записи попадают в db.deleted (дата удаления),
+   удалённые оплаты/партии печати — в _del внутри записи. Перед каждой записью в облако
+   предыдущая версия копируется в backups/. */
+const YD_CLIENT_ID='b113240684774858a910d13bedb5b6f0'; // ClientID приложения «Stomatart Lab» на oauth.yandex.ru (не секрет)
+const YD_API=(()=>{try{return localStorage.getItem('yd_base')}catch(e){return null}})()||'https://cloud-api.yandex.net/v1/disk';
+const YD_FILE='app:/data.json',YD_BAK='app:/backups',YD_KEEP=100,NEST=['payments','batches'];
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const lsSet=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
+let ydToken=IN_CLAUDE?null:lsGet(KEY+'_ydtoken'),ydBusy=false,ydAgain=false,ydMd5=null,ydRemoteCanon=null,ydTimer=null,ydState=ydToken?'wait':'off',ydLast=lsGet(KEY+'_ydlast'),ydBakN=0;
+if(ydToken)cloudState='wait';
+
+// Старые оплаты/партии без id получают одинаковый id на всех устройствах (из содержимого)
+function h32(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(36)}
+function fixAll(d){for(const c of COLLS){d[c]=d[c]||[];d[c].forEach(x=>{for(const k of NEST)if(Array.isArray(x[k]))x[k].forEach((it,i)=>{if(it&&!it.id)it.id='n'+h32(JSON.stringify(it)+'|'+i)})})}
+  d.deleted=d.deleted||{};COLLS.forEach(c=>d.deleted[c]=d.deleted[c]||{})}
+
+// Снимок состояния: по нему save() понимает, какие записи изменились, и ставит им updatedAt
+let snap={};
+const recBody=x=>{const{updatedAt,...r}=x;return JSON.stringify(r)};
+const setBody=()=>JSON.stringify([db.labName,db.lead]);
+function resetSnap(){snap={_s:setBody()};COLLS.forEach(c=>{snap[c]={};db[c].forEach(x=>snap[c][x.id]=recBody(x))})}
+function stamp(){
+  const now=new Date().toISOString();fixAll(db);
+  for(const c of COLLS){const old=snap[c]||{},seen=new Set();
+    for(const x of db[c]){seen.add(x.id);for(const k of NEST)if(Array.isArray(x[k]))x[k].forEach(it=>{if(it&&!it.id)it.id=uid()});
+      const b=recBody(x);if(old[x.id]===b)continue;
+      if(old[x.id]){const o=JSON.parse(old[x.id]);for(const k of NEST){const ids=new Set((x[k]||[]).map(i=>i.id));const gone=(o[k]||[]).map(i=>i.id).filter(id=>id&&!ids.has(id));if(gone.length)x._del=[...new Set([...(x._del||[]),...gone])]}}
+      x.updatedAt=now;delete db.deleted[c][x.id]}
+    for(const id in old)if(!seen.has(id))db.deleted[c][id]=now}
+  if(snap._s!==setBody())db.settingsAt=now;
+  resetSnap();
+}
+fixAll(db);resetSnap();
+
+// Слияние двух баз по записям
+const tsOf=x=>(x&&x.updatedAt)||'';
+const clone=x=>JSON.parse(JSON.stringify(x));
+function mergeRec(a,b){
+  const w=tsOf(b)>tsOf(a)?b:a,o=w===a?b:a,r=clone(w),del=new Set([...(a._del||[]),...(b._del||[])]);
+  for(const k of NEST){if(!Array.isArray(a[k])&&!Array.isArray(b[k]))continue;const seen=new Set(),out=[];
+    for(const it of [...(w[k]||[]),...(o[k]||[])]){if(!it||!it.id||seen.has(it.id)||del.has(it.id))continue;seen.add(it.id);out.push(clone(it))}
+    if(k==='batches'&&out.length>(w.batches||[]).length)r.printed=Math.max(+r.printed||0,...out.map(x=>+x.to||0));
+    r[k]=out}
+  if(del.size)r._del=[...del];
+  return r;
+}
+function mergeDb(L,R){
+  fixAll(L);fixAll(R);
+  const out=Object.assign({},R,L),sw=(R.settingsAt||'')>(L.settingsAt||'')?R:L,limit=new Date(Date.now()-365*864e5).toISOString();
+  out.labName=sw.labName??L.labName;out.lead=sw.lead??L.lead;out.settingsAt=sw.settingsAt||L.settingsAt;out.deleted={};
+  for(const c of COLLS){const del={};
+    for(const d of [L.deleted[c],R.deleted[c]])for(const id in d)if(d[id]>limit&&(!del[id]||d[id]>del[id]))del[id]=d[id];
+    out.deleted[c]=del;
+    const lm=new Map(L[c].map(x=>[x.id,x])),rm=new Map(R[c].map(x=>[x.id,x])),arr=[];
+    for(const id of new Set([...lm.keys(),...rm.keys()])){const l=lm.get(id),r=rm.get(id),rec=l&&r?mergeRec(l,r):clone(l||r);
+      if(del[id]&&del[id]>=tsOf(rec))continue;arr.push(rec)}
+    out[c]=arr}
+  return out;
+}
+// Одинаковое содержимое → одинаковая строка (для сравнения «есть ли что отправить»)
+function canon(d){const o={app:'stomatart',v:2,labName:d.labName,lead:d.lead,settingsAt:d.settingsAt||'',deleted:{}};
+  for(const c of COLLS){o[c]=[...(d[c]||[])].sort((a,b)=>a.id<b.id?-1:a.id>b.id?1:0);const dl=(d.deleted||{})[c]||{};o.deleted[c]=Object.keys(dl).sort().reduce((m,k)=>(m[k]=dl[k],m),{})}
+  return JSON.stringify(o)}
+// Применить слитую базу, не подменяя объекты (открытые формы ссылаются на них)
+function applyMerged(m){
+  db.labName=m.labName;db.lead=m.lead;db.settingsAt=m.settingsAt;db.deleted=m.deleted;
+  for(const c of COLLS){const cur=new Map(db[c].map(x=>[x.id,x])),out=[];
+    for(const r of m[c]){const l=cur.get(r.id);if(l){if(JSON.stringify(l)!==JSON.stringify(r)){for(const k of Object.keys(l))delete l[k];Object.assign(l,r)}out.push(l)}else out.push(r)}
+    db[c].splice(0,db[c].length,...out)}
+  resetSnap();saveLocal();softRender();
+}
+
+// Запросы к API Диска: на компьютере — через программу (window.desktop.http), на телефоне — fetch
+const q=encodeURIComponent;
+async function ydReq(method,url,{auth=true,body}={}){
+  const headers={};if(auth)headers.Authorization='OAuth '+ydToken;
+  if(DESK){const r=await window.desktop.http({method,url,headers,body});if(!r.status)throw new Error('нет связи');return r}
+  const r=await fetch(url,{method,headers,body,cache:'no-store'});return {status:r.status,text:await r.text()};
+}
+const ydJ=r=>{try{return JSON.parse(r.text)}catch(e){return {}}};
+function ydOk(r,ok=[200,201,202]){if(r.status===401||r.status===403){const e=new Error('auth');e.auth=true;throw e}if(!ok.includes(r.status))throw new Error('Диск ответил '+r.status);return r}
+async function ydMeta(){const r=await ydReq('GET',`${YD_API}/resources?path=${q(YD_FILE)}&fields=md5,modified`);if(r.status===404)return null;return ydJ(ydOk(r))}
+async function ydDownload(){const h=ydJ(ydOk(await ydReq('GET',`${YD_API}/resources/download?path=${q(YD_FILE)}`))).href;return ydOk(await ydReq('GET',h,{auth:false})).text}
+async function ydUpload(text){const h=ydJ(ydOk(await ydReq('GET',`${YD_API}/resources/upload?path=${q(YD_FILE)}&overwrite=true`))).href;ydOk(await ydReq('PUT',h,{auth:false,body:text}))}
+async function ydBackup(){
+  await ydReq('PUT',`${YD_API}/resources?path=${q(YD_BAK)}`); // 201 — создана, 409 — уже есть
+  const st=new Date().toISOString().replace(/[:.]/g,'-');
+  ydOk(await ydReq('POST',`${YD_API}/resources/copy?from=${q(YD_FILE)}&path=${q(YD_BAK+'/data-'+st+'.json')}&overwrite=true`));
+  const day=today();
+  if(lsGet(KEY+'_ydday')!==day){await ydReq('PUT',`${YD_API}/resources?path=${q(YD_BAK+'/daily')}`);await ydReq('POST',`${YD_API}/resources/copy?from=${q(YD_FILE)}&path=${q(YD_BAK+'/daily/data-'+day+'.json')}`);lsSet(KEY+'_ydday',day);ydBakN=999}
+  if(++ydBakN>=20){ydBakN=0;await ydPrune()}
+}
+async function ydPrune(){
+  for(const [dir,keep] of [[YD_BAK,YD_KEEP],[YD_BAK+'/daily',60]]){
+    const r=await ydReq('GET',`${YD_API}/resources?path=${q(dir)}&limit=2000&fields=_embedded.items.name,_embedded.items.type`);if(r.status!==200)continue;
+    const names=((ydJ(r)._embedded||{}).items||[]).filter(i=>i.type==='file'&&/^data-.*\.json$/.test(i.name)).map(i=>i.name).sort();
+    for(const n of names.slice(0,Math.max(0,names.length-keep)))await ydReq('DELETE',`${YD_API}/resources?path=${q(dir+'/'+n)}&permanently=true`)}
+}
+async function ydSyncOnce(){
+  for(let i=0;i<4;i++){
+    const meta=await ydMeta();
+    if(!meta){ydMd5=null;ydRemoteCanon=null}
+    else if(meta.md5!==ydMd5){let R;try{R=JSON.parse(await ydDownload());R=R.data||R}catch(e){throw new Error('файл в облаке не читается')}
+      if(!Array.isArray(R.orders))throw new Error('файл в облаке не читается');
+      fixAll(R);ydRemoteCanon=canon(R);applyMerged(mergeDb(db,R));ydMd5=meta.md5}
+    const mine=canon(db);
+    if(mine===ydRemoteCanon)return;
+    const m2=await ydMeta();
+    if((m2&&m2.md5)!==(meta&&meta.md5))continue; // пока сливали, кто-то записал в облако — сливаем заново
+    if(m2)await ydBackup();
+    await ydUpload(mine);
+    ydRemoteCanon=mine;ydMd5=null; // в следующий раз перечитаем облако и убедимся, что нашу запись никто не перекрыл
+    return;
+  }
+}
+function ydSet(s){ydState=s;setCloud(s==='off'?'local':s);if(typeof tab!=='undefined'&&tab==='more'&&!moreView)softRender()}
+async function ydSync(){
+  if(!ydToken)return;
+  if(ydBusy){ydAgain=true;return}
+  if(layers.length){ydSoon(3000);return} // пока открыта форма — не трогаем данные
+  ydBusy=true;ydSet('sync');
+  try{do{ydAgain=false;await ydSyncOnce()}while(ydAgain);ydLast=new Date().toISOString();lsSet(KEY+'_ydlast',ydLast);ydSet('ok')}
+  catch(e){console.warn('sync',e);ydSet(e.auth?'auth':'err')}
+  ydBusy=false;
+}
+function ydSoon(ms){clearTimeout(ydTimer);ydTimer=setTimeout(ydSync,ms)}
+const ydAuthUrl=()=>`https://oauth.yandex.ru/authorize?response_type=token&client_id=${q(YD_CLIENT_ID)}&force_confirm=yes`;
+async function ydConnect(code){
+  const m=String(code).match(/access_token=([^&\s]+)/),tok=(m?m[1]:String(code)).trim();
+  if(tok.length<20){toast('Код слишком короткий — проверьте, что скопирован целиком');return}
+  const prev=ydToken;ydToken=tok;
+  try{const r=await ydReq('GET',`${YD_API}/resources?path=${q('app:/')}&limit=1`);if(r.status===401||r.status===403){ydToken=prev;toast('Код не подходит');return}
+    if(r.status!==200&&r.status!==404){ydToken=prev;toast('Не удалось связаться с Диском');return}}
+  catch(e){ydToken=prev;toast('Нет связи с Яндекс Диском');return}
+  lsSet(KEY+'_ydtoken',tok);ydMd5=null;toast('Подключено');ydSet('wait');render();ydSync();
+}
+async function queueSync(){
+  if(syncing){syncAgain=true;return}
+  syncing=true;setCloud('sync');
+  try{do{syncAgain=false;await pushDiff()}while(syncAgain);setCloud('ok')}
+  catch(e){console.warn(e);setCloud('err');if(e&&e.code==='quota_exceeded')toast('Облако заполнено')}
+  syncing=false;
+}
+async function pushDiff(){
+  for(const c of COLLS){const m=synced[c],seen=new Set();
+    for(const x of db[c]){seen.add(x.id);const j=JSON.stringify(x);if(m[x.id]!==j){await cloud.doc(c+'/'+x.id).set(JSON.parse(j));m[x.id]=j}}
+    for(const id of Object.keys(m))if(!seen.has(id)){await cloud.doc(c+'/'+id).delete();delete m[id]}}
+  const s=JSON.stringify({labName:db.labName,lead:db.lead,v:1});
+  if(synced._s!==s){await cloud.doc('meta/settings').set(JSON.parse(s));synced._s=s}
+}
+let rTimer=null;
+function softRender(){clearTimeout(rTimer);rTimer=setTimeout(()=>{const a=document.activeElement;if(a&&a.closest&&a.closest('#main')&&/INPUT|TEXTAREA|SELECT/.test(a.tagName))return;render()},150)}
+function onColl(c,snap){
+  const arr=db[c],m=synced[c],byId=new Map(arr.map(x=>[x.id,x])),seen=new Set();
+  for(const d of snap.docs){const data=Object.assign({},d.data(),{id:d.id}),j=JSON.stringify(data);seen.add(d.id);const loc=byId.get(d.id);
+    if(loc){const lj=JSON.stringify(loc);if(lj===m[d.id]||m[d.id]===undefined){if(lj!==j){for(const k of Object.keys(loc))delete loc[k];Object.assign(loc,JSON.parse(j))}}}
+    else arr.push(JSON.parse(j));
+    m[d.id]=j}
+  if(!snap.metadata.fromCache){for(let i=arr.length-1;i>=0;i--){const x=arr[i];if(!seen.has(x.id)&&m[x.id]!==undefined){arr.splice(i,1);delete m[x.id]}}}
+  saveLocal();softRender();queueSync();
+}
+(async()=>{
+  if(!IN_CLAUDE)return;
+  setCloud('wait');
+  let c=null;try{c=await window.claude.use('db')}catch(e){}
+  if(!c){setCloud('local');return}
+  cloud=c;
+  const t=setTimeout(()=>{if(cloudState==='wait')setCloud('err')},10000);
+  try{
+    const s=await c.doc('meta/settings').get();
+    if(s.exists){const d=s.data();db.labName=d.labName||db.labName;if(d.lead!=null)db.lead=d.lead;synced._s=JSON.stringify({labName:db.labName,lead:db.lead,v:1});
+      COLLS.forEach(k=>db[k].forEach(x=>synced[k][x.id]=JSON.stringify(x)));}
+    cloudReady=true;clearTimeout(t);
+    if(!s.exists)await queueSync();
+    COLLS.forEach(k=>c.collection(k).onSnapshot(snap=>{onColl(k,snap);if(!snap.metadata.fromCache&&cloudState!=='sync')setCloud('ok')},e=>{console.warn(e);setCloud('err')}));
+    setCloud('ok');render();
+  }catch(e){console.warn(e);clearTimeout(t);setCloud('err')}
+})();
+
+/* ===== Иконки (контурные, скруглённые) ===== */
+const IP={
+ orders:'<rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4.5V3.8c0-.4.3-.8.8-.8h4.4c.5 0 .8.4.8.8v.7M9 10h6M9 14h6M9 18h3"/>',
+ aligners:'<path d="M3.5 10.5C3.5 7 7.3 5 12 5s8.5 2 8.5 5.5c0 3.8-2.2 7.5-4.3 7.5-1.6 0-2.4-1.8-4.2-1.8s-2.6 1.8-4.2 1.8c-2.1 0-4.3-3.7-4.3-7.5z"/><path d="M8 9.5h8"/>',
+ calendar:'<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h2M14 14h2M8 17h2"/>',
+ finance:'<path d="M4 7.5c0-1.4 1.1-2.5 2.5-2.5h11c1.4 0 2.5 1.1 2.5 2.5v9c0 1.4-1.1 2.5-2.5 2.5h-11C5.1 19 4 17.9 4 16.5z"/><path d="M4 9h16M15.5 14h1.5"/>',
+ more:'<rect x="4" y="4" width="6.5" height="6.5" rx="1.8"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.8"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.8"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.8"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ phone:'<path d="M5 4.5h3l1.5 4-2 1.3a10 10 0 0 0 6.7 6.7l1.3-2 4 1.5v3A1.5 1.5 0 0 1 18 20.5 15 15 0 0 1 3.5 6 1.5 1.5 0 0 1 5 4.5z"/>',
+ tooth:'<path d="M12 6.2C10.6 4.8 8.8 4 7.2 4.4 4.9 5 4 7.3 4.6 10c.4 1.8 1.1 3 1.4 5 .3 2.3.8 5 2.2 5 1.6 0 1.5-4.5 3.8-4.5s2.2 4.5 3.8 4.5c1.4 0 1.9-2.7 2.2-5 .3-2 1-3.2 1.4-5 .6-2.7-.3-5-2.6-5.6-1.6-.4-3.4.4-4.8 1.8z"/>',
+ user:'<circle cx="12" cy="8" r="3.8"/><path d="M4.5 20c.8-3.8 3.8-6 7.5-6s6.7 2.2 7.5 6"/>',
+ doctor:'<path d="M6 3.5v5a4 4 0 0 0 8 0v-5M6 3.5H5M14 3.5h1"/><path d="M10 12.5v2.5a5 5 0 0 0 10 0v-2"/><circle cx="20" cy="11" r="1.8"/>',
+ clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+ dollar:'<circle cx="12" cy="12" r="8.5"/><path d="M14.8 9.6c0-1.2-1.2-2.1-2.8-2.1s-2.8.9-2.8 2.1c0 2.8 5.6 1.5 5.6 4.3 0 1.2-1.2 2.1-2.8 2.1s-2.8-.9-2.8-2.1M12 6v12"/>',
+ alert:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/>',
+ today:'<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="m9 15 2 2 4-4"/>',
+ printer:'<path d="M7 9V4h10v5M7 17H5a1.5 1.5 0 0 1-1.5-1.5v-5A1.5 1.5 0 0 1 5 9h14a1.5 1.5 0 0 1 1.5 1.5v5A1.5 1.5 0 0 1 19 17h-2"/><rect x="7" y="14" width="10" height="6" rx="1"/>',
+ wallet:'<path d="M4 7.5c0-1.4 1.1-2.5 2.5-2.5h11c1.4 0 2.5 1.1 2.5 2.5v9c0 1.4-1.1 2.5-2.5 2.5h-11C5.1 19 4 17.9 4 16.5z"/><path d="M20 10h-4a2 2 0 0 0 0 4h4"/>',
+ in:'<path d="M12 4v12M7 11l5 5 5-5M5 20h14"/>',
+ out:'<path d="M12 20V8M7 13l5-5 5 5M5 4h14"/>',
+ list:'<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',
+ board:'<rect x="3.5" y="4" width="5" height="16" rx="1.5"/><rect x="10" y="4" width="5" height="11" rx="1.5"/><rect x="16.5" y="4" width="4" height="7" rx="1.5"/>',
+ catalog:'<path d="M5 4.5h11.5A2.5 2.5 0 0 1 19 7v12.5H7.5A2.5 2.5 0 0 1 5 17z"/><path d="M5 17a2.5 2.5 0 0 1 2.5-2.5H19M9 8.5h6"/>',
+ cloud:'<path d="M7 18a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.5 1.5A3.8 3.8 0 0 1 17.5 18z"/><path d="M12 11v5M9.8 13.3 12 11l2.2 2.3"/>',
+ upload:'<path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 15v3.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15"/>',
+ sheet:'<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9.5h16M4 15h16M10 4v16"/>',
+ trash:'<path d="M5 7h14M10 7V5h4v2M7 7l.8 12.2c.1.9.8 1.8 1.7 1.8h5c.9 0 1.6-.9 1.7-1.8L17 7"/>',
+ cal_add:'<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M12 13v5M9.5 15.5h5"/>',
+ check:'<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+ settings:'<circle cx="12" cy="12" r="3"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6 18 18M6 18l1.4-1.4M16.6 7.4 18 6"/>'
+};
+const ic=(n,c='')=>`<svg class="${c||'ic'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IP[n]}</svg>`;
+const ICOL=['#fde3cf,#b85c14','#e3e1f8,#5b55b8','#d9f1e1,#2f8a4e','#dcebf9,#2f6fa8','#fbe0e6,#b23c5a','#f6efc9,#8a6d00','#dff3f2,#1f7f79'];
+function av(name,cls=''){const n=String(name||'?').trim();const parts=n.replace(/^(Др\.?|Dr\.?)\s*/i,'').split(/\s+/);const t=((parts[0]||'')[0]||'?')+((parts[1]||'')[0]||'');let h=0;for(const ch of n)h=(h*31+ch.charCodeAt(0))>>>0;const[bg,fg]=ICOL[h%ICOL.length].split(',');return `<span class="av ${cls}" style="background:${bg};color:${fg}">${esc(t.toUpperCase())}</span>`}
+/* ===== Элайнеры: расчёты ===== */
+function alnInfo(a){
+  const t=today(),total=+a.total||0,iv=+a.interval||10,pr=+a.printed||0,lead=a.lead!=null&&a.lead!==''?+a.lead:db.lead;
+  let wearing=0;if(a.start&&a.start<=t)wearing=Math.min(total,Math.floor(diff(t,a.start)/iv)+1);
+  const finish=a.start?addDays(a.start,total*iv):null;
+  const plan=[];const batch=Math.max(1,+a.batch||6);
+  if(a.start)for(let k=pr;k<total;k+=batch){const need=addDays(a.start,k*iv);plan.push({from:k+1,to:Math.min(k+batch,total),need,printBy:addDays(need,-lead)})}
+  return {wearing,finish,plan,next:plan[0]||null,total,pr,iv,lead};
+}
+
+/* ===== Слои: шторки и диалоги ===== */
+const layers=[];
+function openSheet(title,html,{onSave,saveText='Готово',onDelete,onOpen}={}){
+  const el=document.createElement('div');el.className='layer';
+  el.innerHTML=`<div class="bg"></div><div class="sh"><div class="sh-head"><button class="link" data-x>${onSave?'Отмена':'Закрыть'}</button><b>${esc(title)}</b>${onSave?`<button class="link b" data-ok>${saveText}</button>`:'<span style="min-width:70px"></span>'}</div><div class="sh-body">${html}${onDelete?'<button class="btn danger" data-del>Удалить</button>':''}</div></div>`;
+  document.body.appendChild(el);layers.push(el);
+  el.querySelector('.bg').onclick=closeSheet;el.querySelector('[data-x]').onclick=closeSheet;
+  if(onSave)el.querySelector('[data-ok]').onclick=()=>{if(onSave(el)!==false){save();closeSheet();render()}};
+  if(onDelete)el.querySelector('[data-del]').onclick=()=>ask('Удалить без возможности восстановления?',()=>{onDelete();save();closeSheet();render()},'Удалить');
+  onOpen&&onOpen(el);return el;
+}
+function closeSheet(){const el=layers.pop();el&&el.remove()}
+function ask(text,yes,yesText='Да'){
+  const el=document.createElement('div');el.className='layer';el.style.zIndex=40;
+  el.innerHTML=`<div class="bg"></div><div class="dlg"><p>${esc(text)}</p><div class="bt"><button data-n>Отмена</button><button data-y>${esc(yesText)}</button></div></div>`;
+  document.body.appendChild(el);el.querySelector('[data-n]').onclick=()=>el.remove();el.querySelector('.bg').onclick=()=>el.remove();
+  el.querySelector('[data-y]').onclick=()=>{el.remove();yes()};
+}
+const v=(root,id)=>root.querySelector('#'+id).value.trim();
+
+/* ===== Поля формы ===== */
+const low=s=>String(s||'').trim().toLowerCase().replace(/\s+/g,' ');
+function normPhone(ph){let n=String(ph||'').replace(/[^\d+]/g,'');if(!n)return '';if(!n.startsWith('+')){if(n.length===9)n='+998'+n;else if(n.length===12&&n.startsWith('998'))n='+'+n;}return n}
+function contactBtns(ph){const n=normPhone(ph);if(n.replace('+','').length<7)return '';const d=n.replace('+','');
+  return `<div class="cbtns"><a href="tel:${esc(n)}">${ic('phone')}Позвонить</a><a href="https://wa.me/${esc(d)}" target="_blank" rel="noopener">WhatsApp</a><a href="https://t.me/${esc(n)}" target="_blank" rel="noopener">Telegram</a></div>`}
+function patientFields(pid){const p=P(pid)||{};
+  return `<div class="sec" style="margin-top:0">Пациент</div><div class="f"><label><span>Фамилия</span><input id="fPL" value="${esc(p.last)}" autocapitalize="words" autocomplete="off" placeholder="Фамилия пациента"></label><label><span>Имя</span><input id="fPF" value="${esc(p.first)}" autocapitalize="words" autocomplete="off" placeholder="Имя"></label></div>`}
+function doctorFields(did){const d=D(did)||{};
+  return `<div class="sec">Врач</div><div class="f"><label><span>Имя врача</span><input id="fDN" list="dlDoc" value="${esc(d.name)}" autocapitalize="words" autocomplete="off" placeholder="Напр. Алиев Рустам"></label><label><span>Телефон</span><input id="fDP" type="tel" inputmode="tel" value="${esc(d.phone)}" placeholder="+998 90 123 45 67"></label></div><div id="docC">${contactBtns(d.phone)}</div>
+  <datalist id="dlDoc">${db.doctors.map(x=>`<option value="${esc(x.name)}">`).join('')}</datalist>`}
+function serviceFields(type,x){
+  const cat=db.services.filter(s=>s.type===type),cur=S(x.serviceId),inCat=cur&&cur.name===x.title;
+  return `<label><span>${type==='aln'?'Пакет из каталога':'Из каталога'}</span><select id="fSvc"><option value="">— не выбран —</option>${cat.map(s=>`<option value="${s.id}" ${inCat&&s.id===cur.id?'selected':''}>${esc(s.name)}${s.price?' — '+money(s.price):''}</option>`).join('')}</select></label>
+  <label><span>или свой</span><input id="fCustom" value="${inCat?'':esc(x.title||'')}" autocomplete="off" placeholder="${type==='aln'?'Свой пакет':'Индивидуальный аппарат'}"></label>`}
+function wireForm(el){
+  const svc=el.querySelector('#fSvc'),cus=el.querySelector('#fCustom'),price=el.querySelector('#fPrice'),cnt=el.querySelector('#fTotal'),dn=el.querySelector('#fDN'),dp=el.querySelector('#fDP'),dc=el.querySelector('#docC');
+  svc&&svc.addEventListener('change',()=>{const s=S(svc.value);if(s){if(cus)cus.value='';if(price)price.value=s.price||'';if(cnt&&s.count)cnt.value=s.count;if(price&&!s.price){price.focus()}}});
+  cus&&cus.addEventListener('input',()=>{if(cus.value.trim()&&svc&&svc.value){svc.value='';if(price)price.value=''}});
+  dn&&dn.addEventListener('input',()=>{const d=db.doctors.find(x=>low(x.name)===low(dn.value));if(d&&d.phone&&dp&&!dp.value){dp.value=d.phone;dc.innerHTML=contactBtns(d.phone)}});
+  dp&&dp.addEventListener('input',()=>{dc.innerHTML=contactBtns(dp.value)});
+  el.querySelectorAll('.seg').forEach(sg=>sg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;sg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));sg.dataset.val=b.dataset.v}));
+}
+function resolveDoctor(el){
+  const name=v(el,'fDN').replace(/\s+/g,' '),phone=v(el,'fDP');if(!name)return '';
+  let d=db.doctors.find(x=>low(x.name)===low(name));
+  if(d){if(phone&&phone!==d.phone)d.phone=phone}else{d={id:uid(),name,phone,clinic:''};db.doctors.push(d)}
+  return d.id;
+}
+function resolvePatient(el,docId,cur){
+  const last=v(el,'fPL').replace(/\s+/g,' '),first=v(el,'fPF').replace(/\s+/g,' ');
+  if(!last&&!first){toast('Впишите фамилию или имя пациента');return null}
+  const same=x=>low(x.last)===low(last)&&low(x.first)===low(first);
+  const curP=P(cur);if(curP&&same(curP)){if(docId)curP.doctorId=docId;return curP.id}
+  if(curP){const uses=db.orders.filter(o=>o.patientId===curP.id).length+db.aligners.filter(a=>a.patientId===curP.id).length;
+    if(uses<=1&&!db.patients.some(x=>x!==curP&&same(x))){curP.last=last;curP.first=first;if(docId)curP.doctorId=docId;return curP.id}}
+  let p=db.patients.find(same);
+  if(!p){p={id:uid(),last,first,doctorId:docId||'',phone:'',notes:''};db.patients.push(p)}else if(docId&&!p.doctorId)p.doctorId=docId;
+  return p.id;
+}
+function resolveService(el,type){
+  const sid=el.querySelector('#fSvc').value,cus=v(el,'fCustom');
+  if(sid&&S(sid))return {serviceId:sid,title:S(sid).name};
+  if(cus)return {serviceId:'',title:cus};
+  toast(type==='aln'?'Выберите пакет или впишите свой':'Выберите аппарат или впишите свой');return null;
+}
+
+/* ===== Оплаты ===== */
+function payBlock(x){
+  const rows=(x.payments||[]).map((p,i)=>`<div class="li"><span>${fmt(p.date)}${p.note?' · <span class="mut">'+esc(p.note)+'</span>':''}</span><span><b class="grn">${money(p.amount)}</b> <button class="link" style="min-width:0;color:var(--red)" data-delpay="${i}">✕</button></span></div>`).join('');
+  return `<div id="payBox"><div class="sec">Оплата</div><div class="card"><div class="money"><div class="t-blue"><b>${money(x.price)}</b><span>Цена</span></div><div class="t-grn"><b>${money(paid(x))}</b><span>Оплачено</span></div><div class="${debt(x)?'t-red':'t-grn'}"><b>${money(debt(x))}</b><span>Долг</span></div></div>
+  ${rows?`<div class="list">${rows}</div>`:'<div class="sub">Оплат пока нет</div>'}</div><button class="btn" data-addpay>${ic('dollar','x')}Внести оплату</button></div>`;
+}
+function wirePay(el,x){
+  const box=el.querySelector('#payBox');if(!box)return;
+  box.onclick=e=>{
+    const del=e.target.closest('[data-delpay]');
+    if(del){ask('Удалить эту оплату?',()=>{x.payments.splice(+del.dataset.delpay,1);save();refresh()},'Удалить');return}
+    if(e.target.closest('[data-addpay]'))payForm(x,refresh);
+  };
+  function refresh(){box.outerHTML=payBlock(x);wirePay(el,x);render()}
+}
+function payForm(x,done){
+  openSheet('Оплата',`<div class="f"><label><span>Сумма, $</span><input id="pA" inputmode="decimal" value="${debt(x)||''}"></label><label><span>Дата</span><input id="pD" type="date" value="${today()}"></label><label><span>Заметка</span><input id="pN" placeholder="наличные, перевод…"></label></div><div class="hint">Долг сейчас: ${money(debt(x))}. Можно внести любую часть.</div>`,
+  {saveText:'Внести',onSave(el){const a=num(v(el,'pA'));if(a<=0){toast('Введите сумму');return false}x.payments=x.payments||[];x.payments.push({date:v(el,'pD')||today(),amount:a,note:v(el,'pN')});setTimeout(done,0)}});
+}
+
+/* ===== Заказ ===== */
+function orderForm(o){
+  const isNew=!o||o._new;if(o&&o._new)delete o._new;o=o||{id:uid(),status:'new',payments:[],dueDate:addDays(today(),7),created:today(),price:''};
+  const html=`${patientFields(o.patientId)}${doctorFields(o.doctorId)}
+  <div class="sec">Работа</div><div class="f">${serviceFields('app',o)}<label><span>Цена, $</span><input id="fPrice" inputmode="decimal" value="${esc(o.price)}"></label><label><span>Срок сдачи</span><input id="fDue" type="date" value="${o.dueDate||''}"></label>
+  ${isNew?'<label><span>Оплачено сразу, $</span><input id="fPaid" inputmode="decimal" placeholder="0"></label>':''}</div>
+  <div class="seg" id="fSt" data-val="${o.status}">${Object.entries(STATUS).map(([k,t])=>`<button data-v="${k}" class="${k===o.status?'on':''}">${t}</button>`).join('')}</div>
+  <div class="f"><label class="col"><span>Заметки</span><textarea id="fNotes" placeholder="Цвет, зубы, пожелания врача…">${esc(o.notes)}</textarea></label></div>
+  ${isNew?'':payBlock(o)}`;
+  openSheet(isNew?'Новый заказ':'Заказ',html,{saveText:'Сохранить',
+    onOpen(el){wireForm(el);if(!isNew)wirePay(el,o)},
+    onSave(el){
+      const svc=resolveService(el,'app');if(!svc)return false;
+      const doc=resolveDoctor(el);
+      const pat=resolvePatient(el,doc,o.patientId);if(pat===null)return false;
+      const price=v(el,'fPrice');
+      if(svc.serviceId&&!num(S(svc.serviceId).price)&&num(price)>0)S(svc.serviceId).price=num(price);
+      Object.assign(o,{patientId:pat,doctorId:doc,serviceId:svc.serviceId,title:svc.title,price:num(price),dueDate:v(el,'fDue'),status:el.querySelector('#fSt').dataset.val,notes:v(el,'fNotes')});
+      if(o.status==='done'&&!o.doneDate)o.doneDate=today();
+      if(isNew){const pd=num(v(el,'fPaid'));if(pd>0)o.payments.push({date:today(),amount:pd,note:'при приёме'});db.orders.push(o)}
+      toast('Сохранено');
+    },
+    onDelete:isNew?null:()=>{db.orders=db.orders.filter(x=>x!==o)}});
+}
+
+/* ===== Элайнеры ===== */
+function alignerForm(a){
+  const isNew=!a||a._new;if(a&&a._new)delete a._new;a=a||{id:uid(),created:today(),payments:[],batches:[],interval:10,batch:6,printed:0,start:today(),price:'',total:''};
+  const I=alnInfo(a);
+  let info='';
+  if(!isNew){
+    const nx=I.next;
+    info=`<div class="card"><div class="row"><b>${I.pr} из ${I.total} напечатано</b><span class="mut sm">носит №${I.wearing||'—'}</span></div>
+    <div class="bar"><i style="width:${I.total?I.pr/I.total*100:0}%"></i>${I.wearing?`<u style="left:${I.wearing/I.total*100}%"></u>`:''}</div>
+    <div class="sub">${I.pr?`Напечатано 1–${I.pr}`:'Ещё ничего не напечатано'}${I.pr<I.total?` · осталось ${I.pr+1}–${I.total}`:' · всё напечатано'}</div>
+    ${nx?`<div class="sm">Следующая партия <b>${nx.from}–${nx.to}</b>: напечатать до <b class="${nx.printBy<today()?'red':''}">${fmt(nx.printBy)}</b> (${rel(nx.printBy)}), пациент начнёт №${nx.from} ${fmt(nx.need)}</div>`:''}
+    ${I.finish?`<div class="sub">Окончание лечения ≈ ${fmt(I.finish)}</div>`:''}</div>
+    ${I.pr<I.total?`<button class="btn pri" data-print>${ic('printer','x')}Отметить напечатанную партию</button>`:''}
+    ${I.plan.length?`<div class="sec">План печати</div><div class="card list">${I.plan.map(p=>`<div class="li"><span>Капы ${p.from}–${p.to}</span><span class="sm">печать до <b>${fmt(p.printBy)}</b><br><span class="mut">выдать ${fmt(p.need)}</span></span></div>`).join('')}</div>`:''}
+    ${a.batches.length?`<div class="sec">Напечатано</div><div class="card list">${a.batches.map((b,i)=>`<div class="li"><span>Капы ${b.from}–${b.to}</span><span class="sm mut">${fmt(b.date)} <button class="link" style="min-width:0;color:var(--red)" data-delb="${i}">✕</button></span></div>`).join('')}</div>`:''}
+    ${IN_CLAUDE?'':`<button class="btn" data-ics>${ic('cal_add','x')}${DESK?'Напоминания в календарь (.ics)':'Напоминания в календарь iPhone'}</button>`}
+    ${payBlock(a)}<div class="sec">Параметры</div>`;
+  }
+  const form=`${patientFields(a.patientId)}${doctorFields(a.doctorId)}
+  <div class="sec">Лечение</div><div class="f">${serviceFields('aln',a)}<label><span>Цена пакета, $</span><input id="fPrice" inputmode="decimal" value="${esc(a.price)}"></label>
+  <label><span>Всего кап (этапов)</span><input id="fTotal" inputmode="numeric" value="${esc(a.total)}"></label>
+  <label><span>Дней на одну капу</span><input id="fIv" inputmode="numeric" value="${esc(a.interval)}"></label>
+  <label><span>Начало ношения (№1)</span><input id="fStart" type="date" value="${a.start||''}"></label>
+  <label><span>Печатать партиями по</span><input id="fBatch" inputmode="numeric" value="${esc(a.batch)}"></label>
+  <label><span>Уже напечатано до №</span><input id="fPr" inputmode="numeric" value="${esc(a.printed)}"></label>
+  <label><span>Напомнить за, дней</span><input id="fLead" inputmode="numeric" value="${esc(a.lead??'')}" placeholder="${db.lead}"></label>
+  ${isNew?'<label><span>Оплачено сразу, $</span><input id="fPaid" inputmode="decimal" placeholder="0"></label>':''}</div>
+  <div class="hint">Пример: 30 кап по 10 дней, напечатано 1–6 → 7-я капа нужна через 60 дней от начала. Напоминание придёт заранее, за указанное число дней.</div>
+  <div class="f"><label class="col"><span>Заметки</span><textarea id="fNotes">${esc(a.notes)}</textarea></label></div>`;
+  openSheet(isNew?'Новый пациент на элайнерах':pname(a.patientId),info+form,{saveText:'Сохранить',
+    onOpen(el){wireForm(el);if(isNew)return;wirePay(el,a);
+      const icsb=el.querySelector('[data-ics]');if(icsb)icsb.onclick=()=>exportICS(alnEvents(a),'elaynery-'+pname(a.patientId));
+      const pb=el.querySelector('[data-print]');pb&&(pb.onclick=()=>printForm(a));
+      el.querySelectorAll('[data-delb]').forEach(b=>b.onclick=()=>ask('Удалить запись о печати?',()=>{const bt=a.batches.splice(+b.dataset.delb,1)[0];a.printed=a.batches.reduce((m,x)=>Math.max(m,x.to),0);save();closeSheet();render();alignerForm(a)},'Удалить'));
+    },
+    onSave(el){
+      const price=v(el,'fPrice'),total=parseInt(v(el,'fTotal'))||0;
+      const svc=resolveService(el,'aln');if(!svc)return false;
+      if(!total){toast('Укажите количество кап');return false}
+      const doc=resolveDoctor(el);
+      const pat=resolvePatient(el,doc,a.patientId);if(pat===null)return false;
+      const pr=Math.min(total,parseInt(v(el,'fPr'))||0);
+      Object.assign(a,{patientId:pat,doctorId:doc,serviceId:svc.serviceId,title:svc.title,price:num(price),total,interval:parseInt(v(el,'fIv'))||10,start:v(el,'fStart'),batch:parseInt(v(el,'fBatch'))||6,lead:v(el,'fLead')===''?null:parseInt(v(el,'fLead')),notes:v(el,'fNotes')});
+      if(pr!==a.printed){if(pr>a.printed)a.batches.push({from:a.printed+1,to:pr,date:today()});a.printed=pr}
+      if(isNew){const pd=num(v(el,'fPaid'));if(pd>0)a.payments.push({date:today(),amount:pd,note:'при приёме'});db.aligners.push(a)}
+      toast('Сохранено');
+    },
+    onDelete:isNew?null:()=>{db.aligners=db.aligners.filter(x=>x!==a)}});
+}
+function printForm(a){
+  const I=alnInfo(a),from=I.pr+1,to=Math.min(I.pr+(+a.batch||6),I.total);
+  openSheet('Печать партии',`<div class="f"><label><span>С капы №</span><input value="${from}" disabled></label><label><span>По капу №</span><input id="bT" inputmode="numeric" value="${to}"></label><label><span>Дата печати</span><input id="bD" type="date" value="${today()}"></label></div>`,
+  {saveText:'Готово',onSave(el){const t=Math.min(I.total,parseInt(v(el,'bT'))||0);if(t<from){toast('Неверный номер');return false}a.batches.push({from,to:t,date:v(el,'bD')||today()});a.printed=t;toast(`Напечатано ${from}–${t}`);setTimeout(()=>{closeSheet();alignerForm(a)},0)}});
+}
+
+/* ===== Календарь: события ===== */
+function alnEvents(a){return alnInfo(a).plan.map(p=>({date:p.printBy,kind:'aln',ref:a,title:`Печать элайнеров ${p.from}–${p.to}: ${pname(a.patientId)}`,desc:`Врач: ${dname(a.doctorId)}. Пациент начнёт капу №${p.from} ${fmt(p.need)}.`}))}
+function allEvents(){
+  const ev=[];
+  db.orders.filter(o=>o.status!=='done'&&o.dueDate).forEach(o=>ev.push({date:o.dueDate,kind:'ord',ref:o,title:`Сдать: ${o.title} — ${pname(o.patientId)}`,desc:`Врач: ${dname(o.doctorId)}. ${o.notes||''}`}));
+  db.aligners.forEach(a=>ev.push(...alnEvents(a)));
+  return ev.sort((x,y)=>x.date.localeCompare(y.date));
+}
+function exportICS(evs,name){
+  const t=today();evs=evs.filter(e=>e.date>=t);
+  if(!evs.length){toast('Нет будущих событий');return}
+  const e=s=>String(s).replace(/\\/g,'\\\\').replace(/[,;]/g,m=>'\\'+m).replace(/\n/g,'\\n');
+  const stamp=new Date().toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  const body=evs.map((x,i)=>{const d=x.date.replace(/-/g,''),n=addDays(x.date,1).replace(/-/g,'');
+    return `BEGIN:VEVENT\r\nUID:${x.ref.id}-${d}-${i}@dentlab\r\nDTSTAMP:${stamp}\r\nDTSTART;VALUE=DATE:${d}\r\nDTEND;VALUE=DATE:${n}\r\nSUMMARY:${e(x.title)}\r\nDESCRIPTION:${e(x.desc)}\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nDESCRIPTION:${e(x.title)}\r\nTRIGGER:PT9H\r\nEND:VALARM\r\nEND:VEVENT`}).join('\r\n');
+  const ics=`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//DentLab//RU\r\nCALSCALE:GREGORIAN\r\n${body}\r\nEND:VCALENDAR\r\n`;
+  download(name.replace(/\s+/g,'-')+'.ics',ics,'text/calendar');
+}
+async function download(name,text,mime){
+  if(DESK){try{const r=await window.desktop.saveFile(name,text);if(r&&r.ok)toast('Файл сохранён')}catch(e){toast('Не удалось сохранить файл')}return}
+  if(IN_CLAUDE){let dl=null;try{dl=await window.claude.use('downloads')}catch(e){}
+    if(dl){try{await dl.save({filename:name,data:text});toast('Файл сохранён')}catch(e){if(e&&e.code!=='declined')toast('Не удалось сохранить файл')}return}}
+  const blob=new Blob([text],{type:mime});
+  if(mime!=='text/calendar'&&navigator.canShare){try{const f=new File([blob],name,{type:mime});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}}catch(e){if(e.name==='AbortError')return}}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);
+}
+
+/* ===== Экраны ===== */
+let tab='orders',fOrd='all',qOrd='',fAln='active',qAln='',calY=new Date().getFullYear(),calM=new Date().getMonth(),calSel=today(),moreView=null,openDoc=null,ordView='list',finY=new Date().getFullYear(),finM=new Date().getMonth();
+try{ordView=localStorage.getItem(KEY+'_view')||'list'}catch(e){}
+const TITLES={orders:'Заказы',aligners:'Элайнеры',calendar:'Календарь',finance:'Финансы',more:'Ещё'};
+const NAV=[['orders','Заказы'],['aligners','Элайнеры'],['calendar','Календарь'],['finance','Финансы'],['more','Ещё']];
+$('#nav').innerHTML=NAV.map(([k,t])=>`<button data-tab="${k}"><i>${ic(k,'x')}</i>${t}</button>`).join('');
+$('#logo').innerHTML=ic('tooth','x');
+const stat=(icon,tone,val,label,cls='')=>`<div class="stat"><div class="si t-${tone}">${ic(icon,'x')}</div><div><b class="${cls}">${val}</b><span>${label}</span></div></div>`;
+const empty=(icon,text)=>`<div class="empty"><div class="eic">${ic(icon,'x')}</div>${text}</div>`;
+
+function docTel(id){const d=D(id),n=d&&normPhone(d.phone);return n&&n.length>7?`<a class="tel" href="tel:${esc(n)}" aria-label="Позвонить врачу">${ic('phone','x')}</a>`:''}
+function orderCard(o,compact){
+  const od=o.status!=='done'&&o.dueDate&&o.dueDate<today(),dt=debt(o);
+  return `<div class="card tap" data-open="o:${o.id}"><div class="row"><div class="who">${av(pname(o.patientId))}<div style="min-width:0"><b>${esc(pname(o.patientId))}</b><div class="sub" style="margin:0">${esc(dname(o.doctorId))}</div></div></div><div class="row" style="gap:6px">${docTel(o.doctorId)}${compact?'':`<span class="badge st-${o.status}">${STATUS[o.status]}</span>`}</div></div>
+  <div class="pill">${esc(o.title)}</div>
+  <div class="row"><div class="meta"><span class="${od?'red':''}">${ic('clock')}${o.status==='done'?'сдан '+fmt(o.doneDate||o.dueDate):fmt(o.dueDate)+(compact?'':' · '+rel(o.dueDate))}</span></div>
+  <div class="meta"><span>${ic('dollar')}${money(o.price)}</span>${dt?`<span class="red" style="font-weight:600">−${money(dt)}</span>`:o.price?`<span class="grn">${ic('check')}</span>`:''}</div></div></div>`;
+}
+function vOrders(){
+  const t=today(),act=db.orders.filter(o=>o.status!=='done');
+  const over=act.filter(o=>o.dueDate&&o.dueDate<t).length,due=act.filter(o=>o.dueDate===t).length;
+  const wk=addDays(t,7),prints=db.aligners.filter(a=>{const n=alnInfo(a).next;return n&&n.printBy<=wk}).length;
+  const totalDebt=[...db.orders,...db.aligners].reduce((s,x)=>s+debt(x),0);
+  const match=o=>!qOrd||(pname(o.patientId)+' '+dname(o.doctorId)+' '+o.title).toLowerCase().includes(qOrd.toLowerCase());
+  const top=`${storageOK||cloud?'':'<div class="warn">Данные не сохраняются в этом режиме браузера. Откройте приложение в Safari (не в приватном режиме).</div>'}
+  <div class="stats">${stat('alert','red',over,'Просрочено',over?'red':'')}${stat('today','blue',due,'Сдать сегодня')}${stat('printer','vio',prints,'Печать элайнеров, 7 дн.')}${stat('wallet','org',money(totalDebt),'Долг врачей',totalDebt?'red':'')}</div>
+  <div class="tools"><input class="search" placeholder="Пациент, врач, аппарат" value="${esc(qOrd)}" id="qOrd"><div class="vt"><button data-ov="list" class="${ordView==='list'?'on':''}" aria-label="Список">${ic('list','x')}</button><button data-ov="board" class="${ordView==='board'?'on':''}" aria-label="Доска">${ic('board','x')}</button></div></div>`;
+  if(ordView==='board'){
+    const cols=[['new','Новые','t-org'],['work','В работе','t-vio'],['ready','Готово','t-grn'],['done','Сданы','t-blue']];
+    return top+`<div class="board">${cols.map(([k,tt,tone])=>{let l=db.orders.filter(o=>o.status===k&&match(o));l.sort((a,b)=>k==='done'?(b.doneDate||'').localeCompare(a.doneDate||''):(a.dueDate||'9').localeCompare(b.dueDate||'9'));if(k==='done')l=l.slice(0,30);
+      return `<div class="col"><div class="col-h ${tone}">${tt}<em>${l.length}</em></div>${l.map(o=>orderCard(o,true)).join('')||'<div class="sub" style="text-align:center;padding:14px 0">Пусто</div>'}</div>`}).join('')}</div>
+    <div class="hint bhint" style="margin-top:6px">Листайте колонки влево-вправо. Статус меняется внутри заказа.</div>`;
+  }
+  let list=db.orders.filter(o=>(fOrd==='all'||(fOrd==='active'?o.status!=='done':fOrd==='debt'?debt(o)>0:o.status===fOrd))&&match(o));
+  list.sort((a,b)=>fOrd==='done'?(b.doneDate||'').localeCompare(a.doneDate||''):((a.status==='done')-(b.status==='done'))||(a.dueDate||'9').localeCompare(b.dueDate||'9'));
+  const chips=[['new','Новые'],['work','В работе'],['ready','Готовы'],['done','Сданы'],['debt','Должны'],['all','Все']];
+  return top+`<div class="chips">${chips.map(([k,tt])=>`<button class="chip ${k===fOrd?'on':''}" data-ford="${k}">${tt}</button>`).join('')}</div>
+  ${list.length?`<div class="grid">${list.map(o=>orderCard(o)).join('')}</div>`:(db.orders.length?empty('orders','Ничего не найдено'):empty('orders','Заказов пока нет.<br>Нажмите «Заказ» вверху, чтобы добавить первый.'))}`;
+}
+function vAligners(){
+  let list=db.aligners.filter(a=>fAln==='all'||(fAln==='active'?a.printed<a.total:fAln==='debt'?debt(a)>0:a.printed>=a.total));
+  if(qAln){const q=qAln.toLowerCase();list=list.filter(a=>(pname(a.patientId)+' '+dname(a.doctorId)).toLowerCase().includes(q))}
+  list.sort((x,y)=>((alnInfo(x).next||{}).printBy||'9').localeCompare((alnInfo(y).next||{}).printBy||'9'));
+  const act=db.aligners.filter(a=>a.printed<a.total).length,wk=addDays(today(),7),soon=db.aligners.filter(a=>{const n=alnInfo(a).next;return n&&n.printBy<=wk}).length;
+  return `<div class="stats">${stat('aligners','grn',act,'Пациентов в лечении')}${stat('printer','vio',soon,'Напечатать за 7 дн.')}</div>
+  <div class="tools"><input class="search" placeholder="Пациент или врач" value="${esc(qAln)}" id="qAln"></div>
+  <div class="chips">${[['active','В процессе'],['finished','Напечатаны'],['debt','Должны'],['all','Все']].map(([k,t])=>`<button class="chip ${k===fAln?'on':''}" data-faln="${k}">${t}</button>`).join('')}</div>
+  ${list.length?'<div class="grid">':''}${list.map(a=>{const I=alnInfo(a),n=I.next,dt=debt(a);return `<div class="card tap" data-open="a:${a.id}"><div class="row"><div class="who">${av(pname(a.patientId))}<div style="min-width:0"><b>${esc(pname(a.patientId))}</b><div class="sub" style="margin:0">${esc(dname(a.doctorId))}</div></div></div><div class="row" style="gap:6px">${docTel(a.doctorId)}<span class="badge st-work">${I.pr}/${I.total}</span></div></div>
+  <div class="pill aln row"><span>${n?`Печать ${n.from}–${n.to}`:'Всё напечатано'}</span><span class="${n&&n.printBy<today()?'red':''}">${n?fmt(n.printBy):'✓'}</span></div>
+  <div class="bar"><i style="width:${I.total?I.pr/I.total*100:0}%"></i>${I.wearing?`<u style="left:${I.wearing/I.total*100}%"></u>`:''}</div>
+  <div class="row"><div class="meta"><span>${ic('clock')}по ${I.iv} дн.</span>${I.wearing?`<span>носит №${I.wearing}</span>`:''}</div><div class="meta"><span>${ic('dollar')}${money(paid(a))} / ${money(a.price)}</span>${dt?`<span class="red" style="font-weight:600">−${money(dt)}</span>`:''}</div></div></div>`}).join('')}${list.length?'</div>':''}${list.length?'':(db.aligners.length?empty('aligners','Ничего не найдено'):empty('aligners','Пациентов на элайнерах пока нет.<br>Нажмите «Пациент» вверху, чтобы добавить.'))}`;
+}
+function vCalendar(){
+  const ev=allEvents(),map={};ev.forEach(e=>(map[e.date]=map[e.date]||[]).push(e));
+  const first=new Date(calY,calM,1),startW=(first.getDay()+6)%7,t=today();
+  let cells='';
+  for(let i=0;i<42;i++){const d=new Date(calY,calM,1-startW+i),s=iso(d),es=map[s]||[];if(i>=35&&d.getMonth()!==calM)break;
+    const dots=es.slice(0,4).map(e=>`<i class="${e.kind==='aln'?'a':(s<t?'r':'')}"></i>`).join('');
+    cells+=`<button class="d ${d.getMonth()!==calM?'o':''} ${s===t?'t':''} ${s===calSel?'s':''}" data-day="${s}">${d.getDate()}<span class="dots">${dots}</span></button>`}
+  const sel=map[calSel]||[];
+  const mName=first.toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+  const upcoming=ev.filter(e=>e.date>=t).slice(0,8);
+  const evRow=e=>`<div class="card tap" data-open="${e.kind==='aln'?'a':'o'}:${e.ref.id}"><div class="row"><div class="who">${av(pname(e.ref.patientId),'sm')}<span>${esc(e.title)}</span></div></div><div class="sub" style="margin-top:6px">${esc(e.desc)}</div></div>`;
+  return `<div class="calwrap"><div><div class="cal"><div class="cal-h"><button data-cm="-1">‹</button><b style="text-transform:capitalize">${mName}</b><button data-cm="1">›</button></div>
+  <div class="cal-g">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(w=>`<div class="wd">${w}</div>`).join('')}${cells}</div></div>
+  <div class="meta" style="margin:10px 2px"><span><i class="lg" style="background:var(--blue)"></i>сдать аппарат</span><span><i class="lg" style="background:var(--acc2)"></i>напечатать элайнеры</span><span><i class="lg" style="background:var(--red)"></i>просрочено</span></div></div>
+  <div><div class="sec">${fmt(calSel)}${calSel===t?' · сегодня':''}</div>${sel.map(evRow).join('')||'<div class="card sub">На этот день ничего нет</div>'}
+  <div class="sec">Ближайшее</div>${upcoming.map(e=>`<div class="card tap" data-open="${e.kind==='aln'?'a':'o'}:${e.ref.id}"><div class="row"><div class="who">${av(pname(e.ref.patientId),'sm')}<span>${esc(e.title)}</span></div><b class="sm" style="white-space:nowrap">${fmt(e.date)}</b></div></div>`).join('')||'<div class="card sub">Нет запланированных дел</div>'}
+  ${IN_CLAUDE?'':DESK?`<button class="btn" data-icsall>${ic('cal_add','x')}Выгрузить в календарь (.ics)</button>
+  <div class="hint">Создаёт файл .ics — его можно открыть в Outlook, Google Календаре или отправить на iPhone. События с напоминанием в 9:00. После изменений выгрузите заново.</div>`:`<button class="btn" data-icsall>${ic('cal_add','x')}Выгрузить в календарь iPhone</button>
+  <div class="hint">Создаёт файл .ics — iPhone предложит добавить события с напоминанием в 9:00. После изменений выгрузите заново.</div>`}`+'</div></div>';
+}
+function debtItems(docId){return [...db.orders.map(o=>({x:o,k:'o',t:o.title,d:o.dueDate||o.created})),...db.aligners.map(a=>({x:a,k:'a',t:'Элайнеры '+a.total+' кап',d:a.start}))].filter(i=>(i.x.doctorId||'')===docId&&debt(i.x)>0).sort((a,b)=>(a.d||'').localeCompare(b.d||''))}
+const allWorks=()=>[...db.orders.map(o=>({x:o,d:o.created||o.dueDate})),...db.aligners.map(a=>({x:a,d:a.created||a.start}))];
+function vFinance(){
+  const ym=`${finY}-${String(finM+1).padStart(2,'0')}`;
+  const pays=[...db.orders,...db.aligners].flatMap(x=>(x.payments||[]).map(p=>({...p,x})));
+  const incomeM=pays.filter(p=>(p.date||'').startsWith(ym)).reduce((s,p)=>s+num(p.amount),0);
+  const billedM=allWorks().filter(w=>(w.d||'').startsWith(ym)).reduce((s,w)=>s+num(w.x.price),0);
+  const worksM=allWorks().filter(w=>(w.d||'').startsWith(ym)).length;
+  const totalDebt=[...db.orders,...db.aligners].reduce((s,x)=>s+debt(x),0);
+  // 6 месяцев
+  const months=[];for(let i=5;i>=0;i--){const d=new Date(finY,finM-i,1);const k=iso(d).slice(0,7);months.push({k,l:d.toLocaleDateString('ru-RU',{month:'short'}).replace('.',''),v:pays.filter(p=>(p.date||'').startsWith(k)).reduce((s,p)=>s+num(p.amount),0)})}
+  const mx=Math.max(1,...months.map(m=>m.v));
+  const ids=[...new Set([...db.orders,...db.aligners].map(x=>x.doctorId||''))];
+  const docs=ids.map(id=>{const xs=[...db.orders,...db.aligners].filter(x=>(x.doctorId||'')===id);return{id,items:debtItems(id),debt:xs.reduce((s,x)=>s+debt(x),0),paidM:xs.flatMap(x=>x.payments||[]).filter(p=>(p.date||'').startsWith(ym)).reduce((s,p)=>s+num(p.amount),0)}}).filter(r=>r.debt>0||r.paidM>0).sort((a,b)=>b.debt-a.debt);
+  const mName=new Date(finY,finM,1).toLocaleDateString('ru-RU',{month:'long',year:'numeric'});
+  const recent=pays.filter(p=>(p.date||'').startsWith(ym)).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  return `<div class="mon"><button data-fm="-1">‹</button><b>${mName}</b><button data-fm="1">›</button></div>
+  <div class="ftable">
+   <div class="fr"><div class="si t-grn">${ic('in','x')}</div><span>Поступления</span><b class="grn">${money(incomeM)}</b></div>
+   <div class="fr"><div class="si t-blue">${ic('orders','x')}</div><span>Начислено за работы <span class="mut sm">(${worksM})</span></span><b>${money(billedM)}</b></div>
+   <div class="fr"><div class="si t-red">${ic('wallet','x')}</div><span>Общий долг врачей</span><b class="${totalDebt?'red':''}">${money(totalDebt)}</b></div>
+  </div>
+  <div class="card"><div class="row"><b>Поступления по месяцам</b></div><div class="chart">${months.map(m=>`<div class="${m.k===ym?'cur':''}"><span>${m.v?'$'+Math.round(m.v):''}</span><i style="height:${m.v/mx*85}%"></i>${m.l}</div>`).join('')}</div></div>
+  <div class="sec">Врачи</div>
+  ${docs.length?'<div class="grid">':''}${docs.map(r=>`<div class="card dcard"><div class="row tap" data-tdoc="${r.id}"><div class="who">${av(dname(r.id))}<div><b>${esc(dname(r.id))}</b><div class="sub" style="margin:0">${r.items.length?r.items.length+' неоплач. работ '+(openDoc===r.id?'▴':'▾'):'долгов нет'}</div></div></div></div>
+   <div class="dm"><div class="t-grn">${ic('dollar')}<span>оплачено<br><b>${money(r.paidM)}</b></span></div><div class="${r.debt?'t-red':'t-grn'}">${ic('wallet')}<span>долг<br><b>${money(r.debt)}</b></span></div></div>
+   ${openDoc===r.id&&r.items.length?`<div class="list" style="margin-top:6px">${r.items.map(i=>`<div class="li tap" data-open="${i.k}:${i.x.id}"><span>${esc(pname(i.x.patientId))}<br><span class="sub">${esc(i.t)} · ${fmt(i.d)}</span></span><span class="sm" style="text-align:right">${money(i.x.price)}<br><b class="red">−${money(debt(i.x))}</b></span></div>`).join('')}</div>`:''}
+   ${r.debt?`<button class="btn pri" data-paydoc="${r.id}" style="margin:10px 0 0">${ic('dollar','x')}Врач внёс оплату</button>`:''}</div>`).join('')}${docs.length?'</div>':empty('finance','Пока нет оплат и долгов')}
+  ${recent.length?`<div class="sec">Оплаты за месяц</div><div class="card list">${recent.map(p=>`<div class="li tap" data-open="${db.orders.includes(p.x)?'o':'a'}:${p.x.id}"><span>${esc(pname(p.x.patientId))}<br><span class="sub">${esc(dname(p.x.doctorId))} · ${fmt(p.date)}</span></span><b class="grn">+${money(p.amount)}</b></div>`).join('')}</div>`:''}`;
+}
+function payDoctor(docId){
+  const items=debtItems(docId),sum=items.reduce((s,i)=>s+debt(i.x),0);
+  openSheet('Оплата: '+dname(docId),`<div class="f"><label><span>Сумма, $</span><input id="pA" inputmode="decimal" value="${sum}"></label><label><span>Дата</span><input id="pD" type="date" value="${today()}"></label></div><div class="hint">Общий долг ${money(sum)}. Сумма закрывает работы по порядку — сначала самые старые.</div>`,
+  {saveText:'Внести',onSave(el){let a=num(v(el,'pA'));if(a<=0){toast('Введите сумму');return false}const d=v(el,'pD')||today();
+    for(const i of items){if(a<=0)break;const p=Math.min(a,debt(i.x));i.x.payments=i.x.payments||[];i.x.payments.push({date:d,amount:p,note:'оплата врача'});a-=p}
+    toast(a>0?`Внесено. Остаток ${money(a)} не распределён`:'Оплата внесена')}});
+}
+
+/* ===== Ещё ===== */
+function vMore(){
+  if(moreView==='patients')return vPatients();
+  if(moreView==='doctors')return vDoctors();
+  if(moreView==='services')return vServices();
+  const last=(()=>{try{return localStorage.getItem(KEY+'_backup')}catch(e){return null}})();
+  return `<div class="card list menu">
+  <div class="li tap" data-more="patients"><span><i class="mi t-blue">${ic('user','x')}</i>Пациенты</span><span class="mut">${db.patients.length} ›</span></div>
+  <div class="li tap" data-more="doctors"><span><i class="mi t-vio">${ic('doctor','x')}</i>Врачи</span><span class="mut">${db.doctors.length} ›</span></div>
+  <div class="li tap" data-more="services"><span><i class="mi t-grn">${ic('catalog','x')}</i>Каталог услуг и цены</span><span class="mut">${db.services.length} ›</span></div></div>
+  <div class="sec">Настройки</div><div class="f"><label><span>Название лаборатории</span><input id="sName" value="${esc(db.labName)}"></label><label><span>Напоминать о печати за, дней</span><input id="sLead" inputmode="numeric" value="${db.lead}"></label></div>
+  ${ydBlock()}<div class="sec">Резервная копия и перенос</div>
+  <button class="btn pri" data-backup>${ic('cloud','x')}Сохранить резервную копию</button>
+  <button class="btn" data-restore>${ic('upload','x')}Загрузить из копии…</button>
+  <button class="btn" data-csv>${ic('sheet','x')}Выгрузить заказы в Excel (CSV)</button>
+  <input type="file" id="fileIn" accept=".json,application/json" style="display:none">
+  ${DESK?`<div class="hint">Все данные сохраняются автоматически в файл<br><b>${esc(window.desktop.dataPath())}</b><br>Каждый день делается копия в папку backups рядом с ним (хранятся 30 последних), а если установлен Яндекс Диск — ещё и в YandexDisk\\Stomatart Lab\\backups.</div><button class="btn" data-folder>${ic('catalog','x')}Открыть папку с данными</button>`:''}
+  ${cloud?'<div class="hint">Данные хранятся в облаке и видны на всех устройствах, где открыта эта ссылка. Резервная копия — на всякий случай.</div>':''}<div class="hint" style="${cloud||DESK?'display:none':''}">Все данные хранятся только на этом телефоне. Делайте резервную копию раз в неделю и сохраняйте её в «Файлы», Telegram или iCloud.${last?' Последняя копия: '+fmt(last.slice(0,10))+'.':''} Чтобы перенести базу на другой телефон, загрузите копию там.</div>
+  <button class="btn danger" data-wipe>${ic('trash','x')}Удалить все данные</button>`;
+}
+function ydBlock(){
+  if(IN_CLAUDE)return '';
+  const head='<div class="sec">Синхронизация через Яндекс Диск</div>';
+  if(!ydToken)return `${head}<div class="f"><label><span>Код подключения</span><input id="ydCode" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="вставьте код"></label></div>
+  <button class="btn pri" data-ydon>${ic('cloud','x')}Подключить</button>
+  <div class="hint">Код даёт владелец Яндекс Диска. После подключения заказы, элайнеры и оплаты будут одинаковыми на компьютере, iPhone и iPad.${YD_CLIENT_ID?` Владелец Диска может <a href="${ydAuthUrl()}" target="_blank" rel="noopener" style="color:var(--acc)">получить код здесь</a>.`:''}</div>`;
+  const st={ok:'Синхронизировано',sync:'Синхронизация…',wait:'Подключение…',err:'Нет связи с Диском. Всё сохранено на этом устройстве и отправится, когда появится интернет.',auth:'Код подключения больше не действует. Попросите новый код у владельца Диска и подключитесь заново.'}[ydState]||'';
+  const when=ydLast?(()=>{const d=new Date(ydLast);return fmt(iso(d))+', '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})})():'';
+  return `${head}<div class="card"><b class="${ydState==='ok'?'grn':ydState==='auth'||ydState==='err'?'red':''}">${st}</b><div class="sub">${when?'Последний обмен: '+when:'Обмена ещё не было'}</div></div>
+  <button class="btn" data-ydnow>${ic('cloud','x')}Синхронизировать сейчас</button>
+  ${ydState==='auth'?`<div class="f"><label><span>Новый код</span><input id="ydCode" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></label></div><button class="btn pri" data-ydon>Подключить заново</button>`:''}
+  <button class="btn danger" data-ydoff>Отключить синхронизацию</button>`;
+}
+function backHdr(t){return `<button class="link" data-more="" style="padding-left:0;margin-bottom:6px">‹ Ещё</button>`}
+function vPatients(){
+  const q=(window._qP||'').toLowerCase();
+  const list=[...db.patients].filter(p=>(p.last+' '+p.first+' '+dname(p.doctorId)).toLowerCase().includes(q)).sort((a,b)=>byName(a.last+a.first,b.last+b.first));
+  return `${backHdr()}<div class="tools"><input class="search" placeholder="Поиск" id="qP" value="${esc(window._qP||'')}"></div><div class="card list">${list.map(p=>{const n=db.orders.filter(o=>o.patientId===p.id).length+db.aligners.filter(a=>a.patientId===p.id).length;return `<div class="li tap" data-open="p:${p.id}"><span class="who">${av(p.last+' '+(p.first||''))}<span>${esc(p.last+' '+(p.first||''))}<br><span class="sub">${esc(dname(p.doctorId))}</span></span></span><span class="mut sm">${n} раб. ›</span></div>`}).join('')||'<div class="sub" style="padding:12px 0">Пациентов нет</div>'}</div>`;
+}
+function vDoctors(){
+  return `${backHdr()}<div class="card list">${[...db.doctors].sort((a,b)=>byName(a.name,b.name)).map(d=>{const s=debtItems(d.id).reduce((t,i)=>t+debt(i.x),0);return `<div class="li tap" data-open="d:${d.id}"><span class="who">${av(d.name)}<span>${esc(d.name)}<br><span class="sub">${esc(d.clinic||'')} ${esc(d.phone||'')}</span></span></span><span class="sm ${s?'red':'mut'}">${s?'долг '+money(s):''} ›</span></div>`}).join('')||'<div class="sub" style="padding:12px 0">Врачей нет</div>'}</div>`;
+}
+function vServices(){
+  const g=t=>db.services.filter(s=>s.type===t).map(s=>`<div class="li tap" data-open="s:${s.id}"><span>${esc(s.name)}</span><span class="mut">${s.price?money(s.price):'цена не указана'} ›</span></div>`).join('')||'<div class="sub" style="padding:12px 0">Пусто</div>';
+  return `${backHdr()}<div class="sec">Аппараты и работы</div><div class="card list">${g('app')}</div><div class="sec">Пакеты элайнеров</div><div class="card list">${g('aln')}</div><div class="hint">Цена из каталога подставляется в заказ автоматически, но её всегда можно изменить в самом заказе.</div>`;
+}
+function patientForm(p){
+  const isNew=!p;p=p||{id:uid(),last:'',first:'',doctorId:'',phone:'',notes:''};
+  const works=isNew?'':[...db.orders.filter(o=>o.patientId===p.id).map(o=>`<div class="li tap" data-o="o:${o.id}"><span>${esc(o.title)}<br><span class="sub">${fmt(o.dueDate)} · ${STATUS[o.status]}</span></span><span class="sm">${money(o.price)}${debt(o)?'<br><b class="red">−'+money(debt(o))+'</b>':''}</span></div>`),...db.aligners.filter(a=>a.patientId===p.id).map(a=>`<div class="li tap" data-o="a:${a.id}"><span>Элайнеры ${a.printed}/${a.total}</span><span class="sm">${money(a.price)}${debt(a)?'<br><b class="red">−'+money(debt(a))+'</b>':''}</span></div>`)].join('');
+  const docOpts=db.doctors.map(d=>`<option value="${d.id}" ${d.id===p.doctorId?'selected':''}>${esc(d.name)}</option>`).join('');
+  openSheet(isNew?'Новый пациент':'Пациент',`<div class="f"><label><span>Фамилия</span><input id="pL" value="${esc(p.last)}" autocapitalize="words"></label><label><span>Имя</span><input id="pF" value="${esc(p.first)}" autocapitalize="words"></label>
+  <label><span>Врач</span><select id="pDoc"><option value="">— без врача —</option>${docOpts}</select></label><label><span>Телефон</span><input id="pPh" type="tel" value="${esc(p.phone)}"></label></div>
+  <div class="f"><label class="col"><span>Заметки</span><textarea id="pN">${esc(p.notes)}</textarea></label></div>
+  ${isNew?'':`<div class="sec">Работы</div><div class="card list">${works||'<div class="sub" style="padding:10px 0">Работ нет</div>'}</div><button class="btn" data-newo>+ Заказ для пациента</button>`}`,
+  {saveText:'Сохранить',onOpen(el){el.querySelectorAll('[data-o]').forEach(r=>r.onclick=()=>openRef(r.dataset.o));const b=el.querySelector('[data-newo]');b&&(b.onclick=()=>orderForm({id:uid(),status:'new',payments:[],dueDate:addDays(today(),7),created:today(),price:'',patientId:p.id,doctorId:p.doctorId,_new:1}))},
+   onSave(el){const l=v(el,'pL');if(!l){toast('Введите фамилию');return false}Object.assign(p,{last:l,first:v(el,'pF'),doctorId:el.querySelector('#pDoc').value,phone:v(el,'pPh'),notes:v(el,'pN')});if(isNew)db.patients.push(p)},
+   onDelete:isNew?null:()=>{if(db.orders.some(o=>o.patientId===p.id)||db.aligners.some(a=>a.patientId===p.id)){toast('Сначала удалите работы пациента');return}db.patients=db.patients.filter(x=>x!==p)}});
+}
+function doctorForm(d){
+  const isNew=!d;d=d||{id:uid(),name:'',clinic:'',phone:''};
+  openSheet(isNew?'Новый врач':'Врач',`<div class="f"><label><span>Имя</span><input id="dN" value="${esc(d.name)}" autocapitalize="words"></label><label><span>Клиника</span><input id="dC" value="${esc(d.clinic)}"></label><label><span>Телефон</span><input id="dP" type="tel" value="${esc(d.phone)}"></label></div>${contactBtns(d.phone)}`,
+  {saveText:'Сохранить',onSave(el){const n=v(el,'dN');if(!n){toast('Введите имя');return false}Object.assign(d,{name:n,clinic:v(el,'dC'),phone:v(el,'dP')});if(isNew)db.doctors.push(d)},
+   onDelete:isNew?null:()=>{db.doctors=db.doctors.filter(x=>x!==d);[...db.orders,...db.aligners,...db.patients].forEach(x=>{if(x.doctorId===d.id)x.doctorId=''})}});
+}
+function serviceForm(s){
+  const isNew=!s;s=s||{id:uid(),type:'app',name:'',price:''};
+  openSheet(isNew?'Новая услуга':'Услуга',`<div class="seg" id="sT" data-val="${s.type}"><button data-v="app" class="${s.type==='app'?'on':''}">Аппарат / работа</button><button data-v="aln" class="${s.type==='aln'?'on':''}">Пакет элайнеров</button></div>
+  <div class="f"><label><span>Название</span><input id="sN" value="${esc(s.name)}"></label><label><span>Цена, $</span><input id="sP" inputmode="decimal" value="${esc(s.price||'')}"></label><label><span>Кап в пакете</span><input id="sC" inputmode="numeric" value="${esc(s.count||'')}" placeholder="только для элайнеров"></label></div>`,
+  {saveText:'Сохранить',onOpen:wireForm,onSave(el){const n=v(el,'sN');if(!n){toast('Введите название');return false}Object.assign(s,{type:el.querySelector('#sT').dataset.val,name:n,price:num(v(el,'sP')),count:parseInt(v(el,'sC'))||undefined});if(isNew)db.services.push(s)},
+   onDelete:isNew?null:()=>{db.services=db.services.filter(x=>x!==s)}});
+}
+function openRef(r){const[k,id]=r.split(':');
+  if(k==='o')orderForm(db.orders.find(x=>x.id===id));
+  else if(k==='a')alignerForm(db.aligners.find(x=>x.id===id));
+  else if(k==='p')patientForm(P(id));
+  else if(k==='d')doctorForm(D(id));
+  else if(k==='s')serviceForm(S(id));
+}
+
+/* ===== Рендер и события ===== */
+function render(){
+  $('#ttl').textContent=tab==='more'&&moreView?({patients:'Пациенты',doctors:'Врачи',services:'Каталог'})[moreView]:TITLES[tab];
+  setCloud(cloudState);
+  const addLbl={orders:'Заказ',aligners:'Пациент',calendar:'Добавить',patients:'Пациент',doctors:'Врач',services:'Услуга'}[tab==='more'?moreView:tab];
+  $('#addBtn').innerHTML=ic('plus','x')+(addLbl||'');
+  $('#addBtn').style.visibility=addLbl?'visible':'hidden';
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+  const m=$('#main');const y=window.scrollY;
+  m.innerHTML=({orders:vOrders,aligners:vAligners,calendar:vCalendar,finance:vFinance,more:vMore})[tab]();
+  window.scrollTo(0,y);
+}
+$('#nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(tab===b.dataset.tab&&tab==='more')moreView=null;tab=b.dataset.tab;window.scrollTo(0,0);render()};
+$('#addBtn').onclick=()=>{
+  if(tab==='orders')orderForm();
+  else if(tab==='aligners')alignerForm();
+  else if(tab==='calendar')ask('Что добавить?',()=>alignerForm(),'Элайнеры'),setTimeout(()=>{const d=document.querySelector('.dlg [data-n]');if(d){d.textContent='Заказ';d.onclick=()=>{d.closest('.layer').remove();orderForm()}}},0);
+  else if(moreView==='patients')patientForm();else if(moreView==='doctors')doctorForm();else if(moreView==='services')serviceForm();
+};
+$('#main').addEventListener('click',e=>{
+  const t=e.target;let b;
+  if(t.closest('a'))return;
+  if(b=t.closest('[data-ford]')){fOrd=b.dataset.ford;render()}
+  else if(b=t.closest('[data-ov]')){ordView=b.dataset.ov;try{localStorage.setItem(KEY+'_view',ordView)}catch(_){}render()}
+  else if(b=t.closest('[data-fm]')){finM+=+b.dataset.fm;if(finM<0){finM=11;finY--}if(finM>11){finM=0;finY++}render()}
+  else if(b=t.closest('[data-faln]')){fAln=b.dataset.faln;render()}
+  else if(b=t.closest('[data-open]'))openRef(b.dataset.open);
+  else if(b=t.closest('[data-cm]')){calM+=+b.dataset.cm;if(calM<0){calM=11;calY--}if(calM>11){calM=0;calY++}render()}
+  else if(b=t.closest('[data-day]')){calSel=b.dataset.day;render()}
+  else if(t.closest('[data-icsall]'))exportICS(allEvents(),'laboratoriya-kalendar');
+  else if(b=t.closest('[data-tdoc]')){openDoc=openDoc===b.dataset.tdoc?null:b.dataset.tdoc;render()}
+  else if(b=t.closest('[data-paydoc]'))payDoctor(b.dataset.paydoc);
+  else if(b=t.closest('[data-more]')){moreView=b.dataset.more||null;window.scrollTo(0,0);render()}
+  else if(t.closest('[data-backup]')){const d=today();try{localStorage.setItem(KEY+'_backup',new Date().toISOString())}catch(e){}download(`laboratoriya-kopiya-${d}.json`,JSON.stringify({app:'dentlab',version:1,exported:new Date().toISOString(),data:db},null,1),'application/json');render()}
+  else if(t.closest('[data-restore]'))$('#fileIn').click();
+  else if(t.closest('[data-csv]')){const q=s=>'"'+String(s??'').replace(/"/g,'""')+'"';const rows=[['Дата приёма','Срок','Статус','Пациент','Врач','Аппарат','Цена','Оплачено','Долг','Заметки'],...db.orders.map(o=>[o.created,o.dueDate,STATUS[o.status],pname(o.patientId),dname(o.doctorId),o.title,o.price,paid(o),debt(o),o.notes]),[],['Элайнеры: начало','Всего кап','Напечатано','Пациент','Врач','Пакет','Цена','Оплачено','Долг'],...db.aligners.map(a=>[a.start,a.total,a.printed,pname(a.patientId),dname(a.doctorId),a.title,a.price,paid(a),debt(a)])];download(`zakazy-${today()}.csv`,'﻿'+rows.map(r=>r.map(q).join(';')).join('\r\n'),'text/csv')}
+  else if(t.closest('[data-folder]'))window.desktop.openFolder();
+  else if(t.closest('[data-ydon]'))ydConnect($('#ydCode').value);
+  else if(t.closest('[data-ydnow]')){ydMd5=null;ydSync()}
+  else if(t.closest('[data-ydoff]'))ask('Отключить синхронизацию на этом устройстве? Данные здесь останутся, но перестанут обмениваться с другими устройствами.',()=>{ydToken=null;lsSet(KEY+'_ydtoken',null);ydSet('off');render()},'Отключить');
+  else if(t.closest('[data-wipe]'))ask(ydToken?'Удалить ВСЕ данные на ВСЕХ подключённых устройствах (компьютер, iPhone, iPad)? Сначала сделайте резервную копию.':DESK?'Удалить ВСЕ данные с этого компьютера? Сначала сделайте резервную копию.':'Удалить ВСЕ данные с этого телефона? Сначала сделайте резервную копию.',()=>{db=defaults();save();render();toast('Данные удалены')},'Удалить всё');
+});
+$('#main').addEventListener('input',e=>{
+  const id=e.target.id;
+  if(id==='qOrd'||id==='qAln'||id==='qP'){if(id==='qOrd')qOrd=e.target.value;else if(id==='qAln')qAln=e.target.value;else window._qP=e.target.value;
+    const pos=e.target.selectionStart;render();const n=$('#'+id);n.focus();try{n.setSelectionRange(pos,pos)}catch(_){}}
+});
+$('#main').addEventListener('change',e=>{
+  if(e.target.id==='sName'){db.labName=e.target.value.trim()||db.labName;save()}
+  if(e.target.id==='sLead'){db.lead=parseInt(e.target.value)||0;save();toast('Сохранено')}
+  if(e.target.id==='fileIn'){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);const d=j.data||j;if(!d.orders||!d.patients)throw 0;
+    ask(`Заменить текущие данные копией от ${j.exported?fmt(j.exported.slice(0,10)):'?'}? (${d.orders.length} заказов, ${d.patients.length} пациентов)`,()=>{db=d;const df=defaults();for(const k in df)if(db[k]===undefined)db[k]=df[k];fixAll(db);const now=new Date().toISOString();COLLS.forEach(c=>db[c].forEach(x=>x.updatedAt=now));db.settingsAt=now;save();render();toast('Данные загружены')},'Заменить')}catch(_){toast('Это не файл резервной копии')}};r.readAsText(f);e.target.value=''}
+});
+document.title=db.labName;
+render();
+/* Запуск синхронизации и проверка облака: при открытии, раз в 30 секунд, при возврате в программу */
+ydSync();setInterval(()=>{if(!document.hidden)ydSync()},30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)ydSync()});window.addEventListener('online',()=>ydSync());window.addEventListener('focus',()=>ydSync());
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
