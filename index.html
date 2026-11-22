@@ -337,8 +337,27 @@ async function ydReq(method,url,{auth=true,body}={}){
   if(DESK){const r=await window.desktop.http({method,url,headers,body});if(!r.status)throw new Error(`нет связи (${method} ${host}): ${r.text}`);return r}
   // Ссылки на скачивание/загрузку (без auth) одноразовые — cache не задаём: Safari при cache:'no-store'
   // добавляет заголовки Cache-Control/Pragma, из-за них запрос к downloader.disk.yandex.ru не проходит
+  if(!auth&&method==='GET')return ydGetPlain(url,host);
   let r;try{r=await fetch(url,auth?{method,headers,body,cache:'no-store'}:{method,body})}catch(e){throw new Error(`нет связи (${method} ${host}): ${e.message}`)}
   return {status:r.status,text:await r.text()};
+}
+// Скачивание по одноразовой ссылке Диска. Safari капризничает с downloader.disk.yandex.ru,
+// поэтому пробуем несколько способов; сработавший запоминаем.
+const xhrGet=(url,opt={})=>new Promise((res,rej)=>{const x=new XMLHttpRequest();x.open('GET',url);x.onload=()=>res({status:x.status,text:x.responseText});x.onerror=()=>rej(new Error('XHR error'));x.send()});
+const GET_WAYS={
+  fetch:u=>fetch(u).then(async r=>({status:r.status,text:await r.text()})),
+  noref:u=>fetch(u,{referrerPolicy:'no-referrer'}).then(async r=>({status:r.status,text:await r.text()})),
+  xhr:u=>xhrGet(u)
+};
+let getWay=lsGet(KEY+'_getway');
+async function ydGetPlain(url,host){
+  const order=[...new Set([getWay,'fetch','noref','xhr'].filter(k=>k&&GET_WAYS[k]))],errs=[];
+  for(const k of order){
+    try{const r=await GET_WAYS[k](url);
+      if(r.status===200){if(k!==getWay){getWay=k;lsSet(KEY+'_getway',k)}return r}
+      errs.push(k+': ответ '+r.status)}
+    catch(e){errs.push(k+': '+e.message)}}
+  throw new Error(`нет связи (GET ${host}): ${errs.join('; ')}`);
 }
 const ydJ=r=>{try{return JSON.parse(r.text)}catch(e){return {}}};
 function ydOk(r,ok=[200,201,202]){if(r.status===401||r.status===403){const e=new Error('auth');e.auth=true;throw e}if(!ok.includes(r.status))throw new Error('Диск ответил '+r.status);return r}
@@ -395,10 +414,17 @@ async function ydDiagnose(){
   await run('Ссылка для записи',async()=>{const r=ydOk(await ydReq('GET',`${YD_API}/resources/upload?path=${q(probe)}&overwrite=true`));up=ydJ(r).href;return new URL(up).hostname});
   if(up)await run('Запись файла',async()=>{const r=await ydReq('PUT',up,{auth:false,body:'check '+T});if(![200,201,202].includes(r.status))throw new Error('ответ '+r.status);return 'ответ '+r.status});
   await run('Ссылка для чтения',async()=>{const r=ydOk(await ydReq('GET',`${YD_API}/resources/download?path=${q(probe)}`));dl=ydJ(r).href;return new URL(dl).hostname});
-  if(dl)await run('Чтение файла',async()=>{const r=await ydReq('GET',dl,{auth:false});if(r.status!==200)throw new Error('ответ '+r.status);if(r.text!=='check '+T)throw new Error('прочитано не то');return 'ответ 200'});
+  if(dl){
+    // каждый способ отдельно — для диагностики (ссылка многоразовая в течение ~30 минут)
+    const fresh=async()=>ydJ(ydOk(await ydReq('GET',`${YD_API}/resources/download?path=${q(probe)}`))).href;
+    for(const [k,name] of [['fetch','Чтение: обычное'],['noref','Чтение: без Referer'],['xhr','Чтение: XHR']])
+      await run(name,async()=>{const r=await GET_WAYS[k](await fresh());if(r.status!==200)throw new Error('ответ '+r.status);if(r.text!=='check '+T)throw new Error('прочитано не то ('+r.text.length+' байт)');return 'ответ 200'});
+    await run('Чтение: без перехода',async()=>{const r=await fetch(await fresh(),{redirect:'manual'});return 'тип '+r.type+', ответ '+r.status});
+    await run('Чтение: доходит ли запрос',async()=>{const r=await fetch(await fresh(),{mode:'no-cors'});return 'тип '+r.type});
+  }
   await ydReq('DELETE',`${YD_API}/resources?path=${q(probe)}&permanently=true`).catch(()=>{});
   openSheet('Проверка связи',`<div class="card list">${steps.map(([ok,n,d])=>`<div class="li"><span>${ok?'✅':'❌'} ${esc(n)}</span><span class="sm ${ok?'mut':'red'}" style="text-align:right;max-width:60%;word-break:break-word">${esc(d)}</span></div>`).join('')}</div>
-  <div class="hint">${esc(navigator.userAgent)}<br>${esc(location.href)} · ${new Date().toLocaleString('ru-RU')}</div><div class="hint">Сделайте скриншот этого экрана и пришлите его.</div>`);
+  <div class="hint">Версия проверки: 3 · ${esc(navigator.userAgent)}<br>${esc(location.href)} · ${new Date().toLocaleString('ru-RU')}</div><div class="hint">Сделайте скриншот этого экрана и пришлите его.</div>`);
 }
 function ydSoon(ms){clearTimeout(ydTimer);ydTimer=setTimeout(ydSync,ms)}
 const ydAuthUrl=()=>`https://oauth.yandex.ru/authorize?response_type=token&client_id=${q(YD_CLIENT_ID)}&force_confirm=yes`;
